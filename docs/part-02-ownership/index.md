@@ -1,5 +1,5 @@
 ---
-title: Ownership & Responsibility
+title: Ownership and Responsibility
 nav_order: 4
 has_children: true
 ---
@@ -19,4 +19,4 @@ These are not just software questions — they are engineering discipline questi
 
 ## Exercises
 
-- [Global Variable Disaster](exercise-01-global-variable-disaster.md)
+- [2.1 Global Variable Disaster](exercise-01-global-variable-disaster.md)

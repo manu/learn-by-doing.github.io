@@ -19,4 +19,4 @@ This section is about how engineers think before they write code — how they na
 
 ## Exercises
 
-- [Messy Folder Cleanup](exercise-01-messy-folder.md)
+- [1.1 Messy Folder](exercise-01-messy-folder.md)
