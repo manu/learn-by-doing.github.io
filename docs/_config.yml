@@ -1,3 +1,18 @@
 
 title: Engineering Through One Project
-theme: minima
+description: A 2-year engineering curriculum built around a Library Management System
+
+remote_theme: just-the-docs/just-the-docs
+
+url: "https://manu.github.io"
+baseurl: "/learn-by-doing.github.io"
+
+color_scheme: light
+
+aux_links:
+  "View on GitHub":
+    - "//github.com/manu/learn-by-doing.github.io"
+
+plugins:
+  - jekyll-remote-theme
+  - jekyll-seo-tag

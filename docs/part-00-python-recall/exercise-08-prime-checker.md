@@ -1,15 +1,30 @@
-# Exercise 0.8 - Prime Number Checker
+---
+title: "0.8 Prime Number Checker"
+parent: Python Recall Bootcamp
+nav_order: 8
+---
+
+# Exercise 0.8 — Prime Number Checker
 
 ## Scenario
-Determine whether a number is prime.
 
-## What You Should Do
-Implement and test a prime checker.
+You need to determine whether a given number is prime.
 
-## Questions
-Can you reduce unnecessary checks?
+## What to Build
+
+```
+Enter a number: 17
+17 is prime.
+
+Enter a number: 12
+12 is not prime.
+```
+
+## What to Observe
+
+- How do you check divisibility inside a loop?
+- At what point can you stop checking? (Hint: you don't need to go all the way to `n`.)
 
 ## Concept
-Loops and efficiency.
 
-← [Part Home](index.md)
+Python recall — loops, conditions, and thinking about efficiency.
