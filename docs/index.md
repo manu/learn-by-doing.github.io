@@ -26,6 +26,22 @@ A carpenter does not spend years obsessing over the hammer. They obsess over wha
 
 Here are things that software is doing in the world today. Not in science fiction. Right now.
 
+**Hunger — Zomato**
+
+It is 8pm. You are hungry. You do not want to cook. There are forty restaurants within 3 kilometres of your house, but you do not know which ones are open, what they are serving tonight, how long delivery will take, or whether the food is any good.
+
+Before Zomato, you would call one restaurant, hope someone picked up, read the menu over the phone, give your address, and then wait — with no idea where your food was.
+
+The problem was not "food delivery is too slow." The real problem was *coordination*. A hungry customer on one side. A restaurant that cannot reach beyond its neighbourhood on the other. And a delivery person in the middle with no efficient way to connect to either.
+
+Zomato is the software that sits between all three. It shows you restaurants ranked by distance, rating, and delivery time. It lets the restaurant update its menu in real time. It assigns the nearest available delivery person the moment the order is placed. It tracks the delivery on a map. It handles payment so no cash changes hands. It collects your review so the next person can decide more easily.
+
+None of these are hard ideas. All of them require software to work at scale — across thousands of restaurants and millions of customers simultaneously.
+
+The problem was hunger. The solution was coordination. The tool was software.
+
+---
+
 **Hospitals**
 When a doctor prescribes a medicine, software instantly checks it against every other medicine the patient is taking and warns if there is a dangerous interaction. Before this software existed, these checks were done manually — and people died from combinations that were missed. The software did not replace the doctor. It gave the doctor a safety net that no human could have maintained alone.
 
