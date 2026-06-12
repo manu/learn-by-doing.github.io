@@ -20,3 +20,4 @@ These are not just software questions — they are engineering discipline questi
 ## Exercises
 
 - [2.1 Global Variable Disaster](exercise-01-global-variable-disaster.md)
+- [2.2 Mutable and Immutable](exercise-02-mutable-immutable.md)

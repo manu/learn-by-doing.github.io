@@ -34,4 +34,8 @@ Only after observing real requests in browser developer tools, and building a ti
 
 ## Exercises
 
-- [Request Response Investigation](exercise-01-request-response.md)
+- [7.1 Watch a Request](exercise-01-request-response.md)
+- [7.2 Tiny HTTP Server](exercise-02-tiny-server.md)
+- [7.3 First Flask Route](exercise-03-first-flask.md)
+- [7.4 Book List Page](exercise-04-book-list-page.md)
+- [7.5 Search Form](exercise-05-search-form.md)

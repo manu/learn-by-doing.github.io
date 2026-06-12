@@ -22,4 +22,6 @@ Why is it slow? What would need to change?
 
 ## Exercises
 
-- [Import 10,000 Books](exercise-01-import-books.md)
+- [5.1 Import 10,000 Books](exercise-01-import-books.md)
+- [5.2 Measure Performance](exercise-02-measure-performance.md)
+- [5.3 The 100,000 Book Problem](exercise-03-hundred-thousand.md)

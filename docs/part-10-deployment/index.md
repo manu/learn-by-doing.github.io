@@ -33,4 +33,8 @@ SQLite (database)
 
 ## Exercises
 
-- [First Automated Backup](exercise-01-first-backup.md)
+- [10.1 Run Flask on the Pi](exercise-01-first-backup.md)
+- [10.2 Nginx as Reverse Proxy](exercise-02-nginx.md)
+- [10.3 Flask as a Service](exercise-03-systemd.md)
+- [10.4 Automated Backups](exercise-04-cron-backup.md)
+- [10.5 Weekly Report](exercise-05-weekly-report.md)

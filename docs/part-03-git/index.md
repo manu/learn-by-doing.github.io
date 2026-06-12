@@ -23,4 +23,8 @@ Learn the *meaning* before the command.
 
 ## Exercises
 
-- [Version Confusion](exercise-01-version-confusion.md)
+- [3.1 Version Confusion](exercise-01-version-confusion.md)
+- [3.2 First Commit](exercise-02-first-commit.md)
+- [3.3 Branches](exercise-03-branches.md)
+- [3.4 GitHub Issues](exercise-04-github-issues.md)
+- [3.5 Pull Request](exercise-05-pull-request.md)

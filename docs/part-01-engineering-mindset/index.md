@@ -20,3 +20,5 @@ This section is about how engineers think before they write code — how they na
 ## Exercises
 
 - [1.1 Messy Folder](exercise-01-messy-folder.md)
+- [1.2 Bad Variable Names](exercise-02-bad-names.md)
+- [1.3 Write a README](exercise-03-write-readme.md)

@@ -25,4 +25,7 @@ The program behaves identically before and after. But it becomes easier to read,
 
 ## Exercises
 
-- [300 Line File](exercise-01-300-line-file.md)
+- [4.1 The 300-Line File](exercise-01-300-line-file.md)
+- [4.2 Extract Functions](exercise-02-extract-functions.md)
+- [4.3 Split into Modules](exercise-03-split-modules.md)
+- [4.4 Remove Duplication](exercise-04-remove-duplication.md)

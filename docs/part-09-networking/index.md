@@ -26,4 +26,6 @@ Set one laptop's DNS server to the Raspberry Pi. See what changes. Then understa
 
 ## Exercises
 
-- [DNS Mystery](exercise-01-dns-mystery.md)
+- [9.1 DNS Mystery](exercise-01-dns-mystery.md)
+- [9.2 Set Up BIND on Raspberry Pi](exercise-02-bind-setup.md)
+- [9.3 Local DNS Records](exercise-03-local-dns.md)

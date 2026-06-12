@@ -25,4 +25,8 @@ Never learn a security tool without first understanding what attack it prevents.
 
 ## Exercises
 
-- [Database Leak](exercise-01-database-leak.md)
+- [8.1 The Database Leak](exercise-01-database-leak.md)
+- [8.2 Add bcrypt](exercise-02-bcrypt.md)
+- [8.3 SQL Injection](exercise-03-sql-injection.md)
+- [8.4 Fix the Injection](exercise-04-fix-injection.md)
+- [8.5 Sessions and Login](exercise-05-sessions.md)
