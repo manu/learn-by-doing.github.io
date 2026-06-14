@@ -14,59 +14,46 @@ To add local names, you create a *zone* — a set of DNS records for a domain th
 
 ## What to Do
 
-### Step 1 — Create the zone file
+### Part A — Design the zone
 
-Create a file at `/etc/bind/db.elasticnode.com`:
+Before touching any configuration files, design the three records you need:
 
-This file defines:
-- The Start of Authority (SOA) record — identifies this server as authoritative for the zone
-- Name Server (NS) record — names this server as the nameserver
-- A records — maps hostnames to IP addresses
+| Name | Points to |
+|------|-----------|
+| `library.elasticnode.com` | Pi's IP address |
+| `school.elasticnode.com` | Pi's IP address (or another device's) |
+| `git.elasticnode.com` | Pi's IP address |
 
-You will add three A records:
-- `library.elasticnode.com` → Pi's IP address
-- `school.elasticnode.com` → Pi's IP address (or another device's IP)
-- `git.elasticnode.com` → Pi's IP address
+These are called A records — they map a hostname to an IPv4 address.
 
-### Step 2 — Register the zone with BIND
+But a zone file needs more than just A records. It also needs to identify who is authoritative for the zone and name the DNS server. Look up what SOA and NS records are before creating the file.
 
-Edit `/etc/bind/named.conf.local` to add:
+### Part B — Create the zone file
 
-```
-zone "elasticnode.com" {
-    type master;
-    file "/etc/bind/db.elasticnode.com";
-};
-```
+Create a zone file on the Pi for the `elasticnode.com` domain. DNS zone files have a specific syntax — look up the format. The file needs:
+- An SOA record declaring this server as authoritative
+- An NS record naming the DNS server
+- Three A records for your three services
 
-Restart BIND:
-```
-sudo systemctl restart bind9
-```
+Use the BIND validation tool to check the file for errors before telling BIND to load it. Fix any errors it reports.
 
-Check for errors:
-```
-sudo named-checkzone elasticnode.com /etc/bind/db.elasticnode.com
-```
+### Part C — Register the zone with BIND
 
-### Step 3 — Test from another device
+Tell BIND to use your zone file. Edit BIND's local configuration to add a zone declaration for `elasticnode.com`, pointing to the file you created.
 
-Change a laptop's DNS server to the Pi's IP address. Then open a terminal and run:
+After restarting BIND, query for `library.elasticnode.com` from another device — asking the Pi specifically. You should get back the Pi's IP address.
 
-```
-nslookup library.elasticnode.com
-```
+### Part D — Full end-to-end test
 
-It should return the Pi's IP address.
-
-Then open a browser and type `http://library.elasticnode.com`. If the Flask app is running on the Pi, the library page should load.
-
-### Step 4 — Test what still works
-
-While using the Pi as your DNS server, verify:
-- `google.com` still resolves (forwarding works)
+Change a laptop's DNS setting to use the Pi's IP address. Now run all four checks:
+- `google.com` still resolves (forwarding still works)
 - `library.elasticnode.com` resolves to the Pi
-- A hostname that does not exist (e.g., `fake.elasticnode.com`) returns NXDOMAIN (no such domain)
+- `school.elasticnode.com` and `git.elasticnode.com` also resolve
+- A name that does not exist returns an error (not a wrong answer)
+
+Open a browser and type `http://library.elasticnode.com`. If the library Flask app is running on the Pi, the page should load.
+
+Write down each result.
 
 ## Topics You Will Learn
 

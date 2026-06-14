@@ -16,47 +16,36 @@ BIND (Berkeley Internet Name Domain) is the most widely used DNS server software
 
 ## What to Do
 
-### Step 1 — Install BIND on the Raspberry Pi
+### Part A — Install and start BIND
 
-SSH into the Raspberry Pi:
-```
-ssh pi@192.168.x.x
-```
+SSH into the Raspberry Pi from your laptop. Install BIND — the most widely-used DNS server software in the world — using the Pi's package manager.
 
-Install BIND:
-```
-sudo apt update
-sudo apt install bind9 bind9utils bind9-doc
-```
+After installation, check whether BIND started automatically. You should see a running service.
 
-Check that it started:
-```
-sudo systemctl status bind9
-```
+BIND listens on port 53, which is the standard DNS port. No device on the network knows about your Pi's DNS yet — they are all still asking the router.
 
-### Step 2 — Understand the configuration files
+### Part B — Read the configuration files
 
-BIND's configuration lives in `/etc/bind/`. The main files are:
-- `named.conf` — the master configuration (usually includes others)
-- `named.conf.options` — global options (where to forward unknown queries)
-- `named.conf.local` — your custom zones
+BIND's configuration lives in `/etc/bind/`. Read each of the main configuration files:
+- The master configuration that includes the others
+- The options file where global settings (like forwarding) are configured
+- The local configuration file where custom zones will go (empty for now)
 
-Read each file. You will not understand everything yet — focus on the structure. Write down what you do not understand.
+Do not try to understand everything. Focus on the structure. Write down three things you do not understand, so you know what to look up.
 
-### Step 3 — Configure forwarding
+### Part C — Configure forwarding
 
-Edit `/etc/bind/named.conf.options` to forward unknown queries to a public DNS server (like Google's `8.8.8.8`). This means: if the Pi does not know a hostname, it asks Google instead of failing.
+The Pi should be able to answer queries for local names — but for everything else (google.com, github.com, etc.), it should pass the question on to a public DNS server.
 
-This is what makes private DNS coexist with the public internet — local names resolve locally, everything else still works normally.
+This is called *forwarding*. Edit the options configuration to forward unknown queries to a public resolver. After making the change, restart BIND and check for errors.
 
-### Step 4 — Test the server is running
+### Part D — Verify the server works
 
-From another device on the same network, run:
-```
-nslookup google.com 192.168.x.x
-```
+From another device on the same network, ask the Pi's DNS server to resolve a public name like `google.com`. You are not asking your router or your internet provider — you are specifically asking the Pi.
 
-Replace `192.168.x.x` with the Pi's IP address. If BIND is running correctly and forwarding is configured, you should see Google's IP address in the response.
+If the Pi is running correctly and forwarding is configured, you should get back Google's IP address. If you get an error, read the Pi's service logs — the error is always described there.
+
+Write down what you had to do to ask a specific DNS server instead of the default one.
 
 ## Topics You Will Learn
 
