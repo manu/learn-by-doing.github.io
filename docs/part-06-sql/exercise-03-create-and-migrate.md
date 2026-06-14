@@ -8,71 +8,67 @@ nav_order: 3
 
 ## The Story
 
-You have a schema design. Now you will create the actual database and move your 10,000 books from CSV into SQLite.
+The design is on paper. Three tables, columns listed, connections drawn. Now comes the first real question: how do you actually build this, and how do you move the 10,000 books already in the CSV into the new database without losing any of them?
 
-SQLite is a database engine that stores everything in a single file — perfect for a project that runs on one machine. It is used in Android, iOS, Firefox, and thousands of other applications. It is a real database, not a toy.
+The librarian is watching. She needs the system working by Monday. If the migration fails partway through — say, it crashes after loading 6,000 of the 10,000 books — is the data safe? Or is the database now half-full, with no way to tell which books made it across?
+
+You have three separate problems to solve:
+1. Create the database with the correct structure
+2. Move the existing 10,000 books across, safely
+3. Update the library program so it reads from the database instead of the CSV
 
 ## What to Do
 
-### Step 1 — Create the database
+### Part A — Build the database
 
-Write a Python script called `create_db.py`. It should:
-1. Connect to a new SQLite file: `library.db`
-2. Create the `books`, `members`, and `loans` tables using the schema from Exercise 6.2
-3. Close the connection
+SQLite is a database engine that stores everything in a single file — perfect for a project that runs on one machine. Python includes a `sqlite3` module built in, with no installation needed.
 
-Run it. A file called `library.db` will appear in your project folder.
+Write a Python script called `create_db.py`. Its only job is to create the database file (`library.db`) and create the three tables based on your design from Exercise 6.2. Nothing else.
 
-You can inspect it using a free tool called **DB Browser for SQLite** (download at `sqlitebrowser.org`). Open `library.db` — you should see your three empty tables.
+Run it. Open the file in **DB Browser for SQLite** (a free tool at `sqlitebrowser.org`). You should see your three empty tables with the correct columns.
 
-### Step 2 — Migrate the books
+Do not move on until the structure looks exactly like your paper design.
 
-Write a second script called `migrate.py`. It should:
-1. Read all rows from `library.csv`
-2. Connect to `library.db`
-3. For each book row, insert a record into the `books` table
-4. Commit and close
+### Part B — Migrate the books
 
-The Python `sqlite3` module is built in — no installation needed.
+Write a separate script called `migrate.py`. Its job is to read every book from `library.csv` and insert it into the `books` table in the database.
 
-After running the migration, open DB Browser and look at the `books` table. You should see 10,000 rows.
+Before writing any code, think through these questions:
+- The migration inserts 10,000 rows. Should it commit after every single insert, or once after all 10,000? What is the difference if the script crashes at row 5,000?
+- Some rows in the CSV might have missing titles or invalid years. What should the migration do with those rows?
+- What happens if `migrate.py` is run a second time by mistake? Would it create 20,000 rows?
 
-### Step 3 — Update the library program
+Write the script, run it, and then open DB Browser to verify: the `books` table should contain exactly 10,000 rows.
 
-Now update `storage.py` (or `library.py`) to use the database instead of the CSV:
-- Replace `load_books()` — instead of reading a CSV, run a `SELECT` query
-- Replace `save_book()` — instead of appending to a CSV, run an `INSERT` query
+### Part C — Switch the library program
 
-The interface and the rest of the program should not change at all.
+Now update the library program to use the database instead of the CSV file. The goal is that nothing visible to the librarian changes — the same menu, the same search results — but the underlying storage is now the database.
 
-### Step 4 — Measure startup time again
+Find the two places in the program that deal with storage:
+- Where books are loaded at startup
+- Where a new book is saved
 
-Run the program and time the startup. Compare it to your measurements from Part 5.
+Replace each with a database query instead of a file operation. The rest of the program should not need to change.
 
-Loading 10,000 rows from SQLite should be significantly faster than reading and parsing a CSV — even before adding any indexes.
+### Part D — Measure startup time again
 
-## Topics You Will Need
+Time how long the library takes to start up with the database. Compare this to your measurement from Part 5 with the CSV.
 
-- Python's `sqlite3` module: `connect()`, `cursor()`, `execute()`, `fetchall()`, `commit()`, `close()`
-- `CREATE TABLE` SQL statement
-- `INSERT INTO` SQL statement
-- `SELECT * FROM` SQL statement
-- `with` statement for database connections (ensures cleanup even on errors)
+Write down both numbers. What changed, and why?
 
 ## Before You Start — Think About This
 
-1. Why do you write a separate migration script instead of building migration logic into the main program? (Think: what happens if migration runs twice?)
-2. The migration must insert 10,000 rows. Should you commit after each `INSERT`, or commit once after all inserts? What is the difference in speed and safety?
-3. After migration, you have two sources of truth: `library.csv` and `library.db`. Which one should the program use going forward? What do you do with the old CSV?
+1. Why is the migration a separate script rather than a button inside the library program? What would go wrong if the migration logic ran every time the program started?
+2. When migrating 10,000 rows, should you save your progress after every single book, or once at the very end? What are the trade-offs?
+3. After migration, you have two copies of the books: `library.csv` and `library.db`. The program now uses only one of them. What should you do with the other? What risk comes from keeping both?
 
 ## When You're Stuck
 
-- `conn = sqlite3.connect("library.db")` opens (or creates) the database file.
-- `cursor = conn.cursor()` gives you an object to run queries.
-- `cursor.execute("INSERT INTO books (title, author, year) VALUES (?, ?, ?)", (title, author, year))` inserts one row. The `?` placeholders are important — do not use string formatting here (you will learn why in Part 8).
-- `conn.commit()` saves all pending changes. Without this, inserts are not saved.
+- Python's built-in `sqlite3` module lets you connect to a database file, run SQL statements, and save (commit) your changes. Look up `sqlite3.connect`, `cursor.execute`, and `conn.commit` in the Python documentation.
+- When inserting data from a variable, use `?` placeholders in the SQL string — do not build the SQL by joining strings together. You will learn exactly why this matters in Part 8.
+- A database connection is a resource that needs to be closed. Using a `with` statement ensures the connection is always closed, even if the script crashes partway through.
 
 ## Once It Works — Go Further
 
-1. Open the database in DB Browser and manually insert a row with an invalid year (a word instead of a number). Does SQLite accept it? What does this tell you about SQLite's type enforcement? (Look up "SQLite type affinity" — it is an unusual design choice.)
-2. What happens if you run `migrate.py` twice? Write a check that prevents duplicate insertion.
+1. Open `library.db` in DB Browser and manually insert a book where the year is a word instead of a number. Does SQLite reject it? Look up "SQLite type affinity" to understand why SQLite's type enforcement is unusual compared to other databases.
+2. Run `migrate.py` a second time. What happens? How would you change the script to detect and skip books that are already in the database?

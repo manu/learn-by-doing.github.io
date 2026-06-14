@@ -8,87 +8,72 @@ nav_order: 2
 
 ## The Story
 
-Before writing any SQL, engineers design the schema — the structure of the database. A schema defines what tables exist, what columns each table has, what type each column holds, and how the tables relate to each other.
+The librarian sits down with you and explains the new requirement: "We need to track which students borrow which books. Right now I have a notebook where I write the student's name, the book title, the date borrowed, and the date returned. I need the computer to do this."
 
-A bad schema is very expensive to fix later. Getting it right at the start is worth the time.
+You pull out your `library.csv`. You could add columns: `borrowed_by`, `borrowed_on`, `returned_on`. But immediately a problem appears — a book can be borrowed many times. If you add those columns to the books row, you can only store the most recent loan. The entire history would be lost.
 
-This exercise is pencil-and-paper work. You will not touch a computer until Step 4.
+You could create a second CSV: `loans.csv`. But now when the librarian asks "what books does Priya currently have?" you would need to read the entire loans file and then look up each book in the books file — two scans, every time.
+
+Before writing a single SQL statement, you need to design the structure — on paper.
 
 ## What to Do
 
-### Step 1 — Identify the entities
+### Part A — Identify what the system needs to remember
 
-An *entity* is a thing the system needs to remember. For the library, the entities are:
+The library needs to remember three kinds of things:
+- **Books** — each physical book
+- **Members** — each registered student or teacher
+- **Loans** — each event of a member borrowing a book
 
-- **Book** — a physical book in the library
-- **Member** — a person who has a library card
-- **Loan** — the event of a member borrowing a book
+For each of these, write down every piece of information the library needs to record. Think like the librarian: what does she write in her notebook today?
 
-Each entity becomes a table. Write one sentence describing each entity.
+For each piece of information, decide: is it text, a number, a date, or yes/no? Write it next to the field name. Being wrong here is expensive to fix later.
 
-### Step 2 — Identify the attributes of each entity
+### Part B — Draw the connections
 
-For each entity, list the pieces of information the system needs to record. Example:
+Take a blank sheet of paper. Draw three boxes, one for each of the three things above. Inside each box, list the fields you identified in Part A.
 
-**Book**: title, author, year published, number of copies, ISBN
+Now draw lines between the boxes:
+- A loan is connected to exactly one book
+- A loan is connected to exactly one member
+- A member can have many loans
+- A book can have many loans over time
 
-For each attribute, decide its type: text (string), number (integer or decimal), date, or yes/no (boolean). Be precise — `year` is an integer, not text.
+On each line, write the relationship in plain English: "one member has many loans," "one loan belongs to one book."
 
-### Step 3 — Identify the relationships
+This drawing is your design. Keep it beside you for the rest of Part 6.
 
-The three entities are connected:
-- A **Loan** connects a **Book** to a **Member**
-- A Member can have many Loans (past and present)
-- A Book can have many Loans over time
+### Part C — Solve the connection problem
 
-Draw this on paper as three boxes (tables) with lines between them. On each line, write the relationship: "one member has many loans", "one loan belongs to one book."
+Here is the central challenge: when you record a loan, you need to say *which book* and *which member*. You cannot copy all the book details into the loan record — if the book's title is corrected later, you would have wrong data in every loan.
 
-### Step 4 — Write the schema in SQL
+Think: what is the minimum information you need in the loan record to identify the book, without copying the book's data?
 
-Translate your design into `CREATE TABLE` statements. The pattern is:
+Write your answer. Then extend your drawing from Part B to show how this connection works.
 
-```
-CREATE TABLE books (
-    id        INTEGER PRIMARY KEY,
-    title     TEXT NOT NULL,
-    author    TEXT NOT NULL,
-    year      INTEGER,
-    copies    INTEGER DEFAULT 1
-);
-```
+### Part D — Verify your design answers real questions
 
-Write similar statements for `members` and `loans`. For `loans`, you will need foreign keys — columns that reference the `id` of another table.
+Using only your drawing (no computer, no data), trace the path to answer each of these questions:
+1. Which books does Priya currently have borrowed?
+2. How many times has "To Kill a Mockingbird" been borrowed this year?
+3. Which members have never returned a book on time?
 
-### Step 5 — Verify your design
-
-Answer these questions using only your schema (no data, just the structure):
-1. Given a member's name, how would you find all books they have ever borrowed?
-2. Given a book title, how would you find everyone currently borrowing it?
-3. How would you find all books that have been borrowed more than 10 times?
-
-If your schema cannot answer these questions, revise it.
-
-## Topics You Will Learn
-
-- Tables, columns, types (`TEXT`, `INTEGER`, `DATE`, `BOOLEAN`)
-- Primary keys — every row has a unique identifier
-- Foreign keys — how tables reference each other
-- `NOT NULL` and `DEFAULT` — how to enforce data integrity
-- Normalisation — why data should not be duplicated across tables
+For each question: can your design answer it? If not, what is missing?
 
 ## Before You Start — Think About This
 
-1. Should `author` be a separate table, or a text column in `books`? What is the trade-off? (Hint: what if an author's name is misspelled in 500 book records?)
-2. The `loans` table needs to know both which book was borrowed and which member borrowed it. How do you express that relationship without copying the book's data into the loan record?
-3. What is a primary key, and why does every table need one? What would happen if two books had the same `id`?
+1. Should `author` be a column in the books table, or a separate table of its own? Think about what happens if the same author's name is spelled differently in 200 book records. Which approach makes it easier to fix?
+2. Every row in every table needs a unique identifier. Why? What would happen if two books had the same identifier and you tried to record a loan for one of them?
+3. The loan record connects a book to a member. The loan does not need to store the book's title or the member's name — it only needs to reference them. Why is this better than copying?
 
 ## When You're Stuck
 
-- A foreign key is a column that holds the `id` of a row in another table. For example, `loans.book_id` holds the `id` of the borrowed book. This is how you link tables without copying data.
-- `NOT NULL` means the column cannot be empty. Apply it to fields that are always required. Do not apply it to fields that are optional.
-- Draw the schema on paper first. It is much faster to erase and redraw than to run `DROP TABLE` and start over.
+- A *primary key* is a unique identifier for each row in a table — like a library card number. No two rows can share one.
+- A *foreign key* is how one table references a row in another table. The loan record stores the book's unique identifier, not the book's data. This is the connection.
+- `NOT NULL` means the field must always have a value — you cannot save a row with that field empty. Which fields in your design must always have a value? Which are optional?
+- Draw first. It is much faster to erase than to undo a bad database design.
 
 ## Once It Works — Go Further
 
-1. Add a `categories` table (Fiction, Non-fiction, Science, History...) and link it to books. A book can belong to multiple categories — how does this change the schema? (Look up "many-to-many relationship" and "junction table.")
-2. What would you need to add to the schema to track overdue books — books that have been borrowed for more than 14 days?
+1. The library wants to track book categories: Fiction, Non-fiction, Science, History. A book can belong to more than one category. How does this change your drawing? (Look up "many-to-many relationship" and "junction table.")
+2. What would you need to add to know when a loan is overdue? The library's rule is: books must be returned within 14 days. Walk through your design and describe the change.

@@ -8,83 +8,84 @@ nav_order: 5
 
 ## The Story
 
-Your library database has 10,000 books. The search query `SELECT * FROM books WHERE title LIKE '%mystery%'` works — but how fast? And what happens with 1,000,000 books?
+The librarian has been using the new database for a week. She is pleased. But she comes back with a complaint on Friday: "Searching by author name takes a long time. Searching by title is fast. Why are they different?"
 
-Without an index, every `SELECT` query with a `WHERE` clause must scan every row in the table — exactly the same problem you had with CSV. The database is smarter and faster than a Python list scan, but the fundamental algorithm is the same: check every row.
+You check. She is right. A search by title returns quickly. A search by author name takes noticeably longer. Both are simple `WHERE` clauses. Both search the same table. What is different about them?
 
-An index is a separate data structure that the database maintains automatically. It makes certain queries dramatically faster by allowing the database to jump directly to relevant rows — like an index in the back of a textbook, versus reading every page to find a word.
+You have not yet told the database anything about which fields you plan to search often. As far as the database is concerned, all columns are equal — which means it searches all of them the same way: by checking every row.
+
+When you moved from CSV to SQLite, you assumed the database would be faster. It is. But without any guidance about how the data will be used, the database is still reading every row for every search — the same fundamental problem as before.
+
+This exercise is about giving the database that guidance.
 
 ## What to Do
 
-### Step 1 — Measure search time without an index
+### Part A — Confirm the problem
 
-Write a Python script that runs the same title search 100 times and measures the average time:
+Write a small measurement script that runs the same author-name search 100 times and records the average time per search. Run the same test for a title search.
 
-```
-Run: SELECT * FROM books WHERE title LIKE '%history%'
-Repeat 100 times
-Calculate average time per query
-```
+Record both numbers. Which is slower? Is the difference consistent across multiple runs?
 
-Record the number.
+### Part B — Understand why
 
-### Step 2 — Create an index
+Before creating any index, answer these questions in writing:
+- Without any additional structure, how does the database find all books by "Ruskin Bond"? How many rows does it check?
+- The title search was fast. Did you add anything to the `title` column that the `author` column does not have? Look back at your schema from Exercise 6.2.
+- Think of a physical library. If you needed to find all books by a specific author quickly, what physical tool would you add to the library? How would it be organised?
 
-```
-CREATE INDEX idx_books_title ON books (title);
-```
+### Part C — Create an index and measure again
 
-Run this once in DB Browser or in a Python script.
+An index is a separate structure that the database maintains alongside the table. It allows certain searches to jump directly to matching rows instead of checking every row.
 
-### Step 3 — Measure again
+Look up how to create an index in SQLite. Create one on the `author` column. Then run your measurement script again.
 
-Run the same 100-query test. Record the new average time.
+Record:
+- The search time before the index
+- The search time after the index
+- How much faster is it? Express this as a ratio.
 
-Calculate the speedup: `old_time / new_time`. Write down what you observe.
+Check the file size of `library.db` before and after. How much larger did the index make the database?
 
-### Step 4 — Understand the trade-off
+### Part D — Understand the cost
 
-Indexes are not free. Answer these questions by experimenting:
+Indexes are not free. Design an experiment to measure the impact on writes:
+- Insert 1,000 books into the database with the index present
+- Drop the index, then insert another 1,000 books without it
+- Measure both
 
-1. After creating the index, how much larger is `library.db`? (Check the file size before and after.)
-2. Insert 1,000 new books into the database — once with the index present, once after dropping it. Which is faster? By how much?
-3. Why would every index you create slow down writes but speed up reads?
+Which insert was faster? By how much?
 
-### Step 5 — Decide which columns need indexes
+Now explain in writing: why does an index slow down writes? Where does the extra time go?
 
-Look at your library queries from Exercise 6.4. For each query, decide:
-- Which column(s) does the `WHERE` clause filter on?
-- Would an index on that column help?
-- Is this query run often enough to justify the storage and write cost?
+### Part E — Decide which columns need indexes
 
-Create indexes for the columns that deserve them.
+Look at all the queries you wrote in Exercise 6.4. For each query, identify which column the `WHERE` clause filters on. Then decide: does this column deserve an index?
 
-## Topics You Will Learn
+Write your reasoning for each decision. Some columns are searched frequently — they deserve indexes. Some are almost never searched — adding an index would slow down writes for no benefit.
 
-- `CREATE INDEX` and `DROP INDEX`
-- Why indexes speed up reads and slow down writes
-- Which queries benefit from indexes and which do not
-- The trade-off between read performance and storage space
-- Why `LIKE '%word%'` (leading wildcard) cannot use a standard index
+Create indexes for the columns you decided deserve them.
 
 ## Before You Start — Think About This
 
-1. An index in a book lets you find pages about "photosynthesis" without reading every page. How is a database index similar? What is it storing internally? (Look up "B-tree index.")
-2. If you add an index on `title`, does a query filtering by `author` become faster? Why not?
-3. `LIKE '%history%'` (wildcard on both sides) cannot use a standard index because the database does not know which part of the title to look up. `LIKE 'history%'` (wildcard only at the end) *can* use an index. Why is this?
+1. Think of an index in the back of a textbook. How does it let you find pages about "photosynthesis" without reading every page? What does it store, and how is it organised? How is a database index similar?
+2. If you add an index on `title`, does a search by `author` become faster? Why not?
+3. Consider two searches: `WHERE title LIKE 'history%'` (starts with "history") versus `WHERE title LIKE '%history%'` (contains "history" anywhere). Only one of these can use a standard index. Which one? Why?
 
 ## When You're Stuck
 
-- `EXPLAIN QUERY PLAN SELECT ...` in SQLite shows whether a query uses an index or does a full table scan. Run this before and after creating an index to confirm the index is being used.
-- If your LIKE query has a leading wildcard (`%word`), an index on that column will not help. Full-text search requires a different data structure — look up SQLite FTS5.
-- Indexes are automatically updated when rows are inserted, updated, or deleted. You do not maintain them manually.
+- After creating an index, you can verify whether the database actually uses it by running `EXPLAIN QUERY PLAN` before your `SELECT` statement. The output will say whether it did a full table scan or used the index.
+- If your search uses a leading wildcard — `LIKE '%word%'` — a standard index cannot help, because the database does not know where in the title to start looking. Look up "SQLite FTS5" for a different approach to full-text search.
+- Indexes are maintained automatically. When you insert, update, or delete a row, every index on that table is updated too. That is the write cost.
 
 ## Once It Works — Go Further
 
-1. Look up *compound indexes* (indexes on more than one column). Create a compound index on `(author, year)`. What queries does this help? What queries does it not help?
-2. Using your measurements from this exercise and Part 5, build a table showing:
-   - CSV search time at 10,000 rows
-   - SQLite search without index at 10,000 rows
-   - SQLite search with index at 10,000 rows
+1. Look up *compound indexes* — indexes that cover more than one column. Create one on `(author, year)`. Which queries does it help? Which queries does it not help? Why?
+2. Build a summary table using your measurements across Part 5 and Part 6:
 
-   This table is a concrete demonstration of why the architecture changed.
+   | Method | Search time |
+   |--------|------------|
+   | CSV, 10,000 rows | |
+   | SQLite without index | |
+   | SQLite with index | |
+
+   This is your complete picture of how the architecture evolved and why.

@@ -37,3 +37,4 @@ transactions → id, book_id, member_id, date, returned
 - [6.3 Create Tables and Migrate](exercise-03-create-and-migrate.md)
 - [6.4 Search and Join](exercise-04-search-and-join.md)
 - [6.5 Indexes](exercise-05-indexes.md)
+- [6.6 Transactions](exercise-06-transactions.md)
