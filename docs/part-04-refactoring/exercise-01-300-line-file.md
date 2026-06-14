@@ -8,62 +8,76 @@ nav_order: 1
 
 ## The Story
 
-The Mini Library started at 50 lines. After adding borrow tracking, delete, search improvements, and error handling, it is now over 300 lines. It still works — every test passes, every feature is there. But something has changed.
+The Mini Library started as 50 lines. Then you added borrow tracking. Then delete. Then case-insensitive search. Then input validation. Then a count display. Each addition was small and reasonable. Each time, you added to the file.
 
-Finding where the search logic lives requires scrolling. Changing the CSV format means editing in three different places. Adding a new feature means reading 300 lines to understand what already exists. Two functions share the same helper logic but neither calls the other.
+It is now 300 lines. It still works perfectly.
 
-The code has accumulated what engineers call *technical debt* — not bugs, but complexity that makes future work slower and riskier. Refactoring is paying that debt back.
+One morning the librarian calls: "I need one more thing — when listing books, I want to see which ones are overdue." You open `library.py`. You start reading. Ten minutes later you are still reading — trying to understand what interacts with what before you dare change anything. You are afraid that touching one part will break another.
+
+This feeling has a name: **technical debt**. The code is not broken. It is *fragile* — any change risks something unexpected. The debt accumulated invisibly, one small addition at a time.
+
+The way to pay it back is refactoring.
 
 ## What to Do
 
-### Step 1 — Read before you touch
+### Part A — Attempt the change first
 
-Read the entire file from top to bottom without changing anything. As you read, write down:
+Before reading or reorganising anything, try to add the overdue feature directly. Spend 20 minutes trying to work out where to add it and what it would affect.
 
-1. Every place where you have to re-read a section because it was not clear the first time
-2. Every function that is longer than 20 lines
-3. Every comment that explains *what* the code does (rather than *why*) — these are signs the code is not self-explanatory
-4. Every piece of logic that appears more than once
+Write down:
+1. How many places in the file did you have to read before you understood enough to start?
+2. Were you confident that your change would not break anything else?
+3. Did you actually finish the feature, or did the complexity stop you?
 
-Do not start refactoring yet. This reading is the diagnosis.
+This is the pain. Keep this record — you will compare it to the same task after refactoring.
 
-### Step 2 — Identify one thing to improve
+### Part B — Diagnose before you touch
 
-From your list, pick the single most confusing or tangled section. Not the biggest problem — the most contained one. Refactoring is safest when done in small steps with a test after each step.
+Now read the entire file from top to bottom. Do not change anything. As you read, make a written list:
 
-### Step 3 — Refactor that section
+- Every place where you thought "what does this do?" and had to re-read it
+- Every function that does more than one thing (search AND display, load AND validate)
+- Every variable name that could mean more than one thing
+- Every piece of logic that appears more than once
+- Every section where a comment explains *what* the code does — this is almost always a sign the code could explain itself through better naming
 
-Apply one of these techniques:
-- **Extract function**: Move a block of logic into its own named function
-- **Rename**: Rename a variable or function to better describe what it holds or does
-- **Remove duplication**: If two sections do nearly the same thing, write one function and call it from both places
+This is your diagnosis. A doctor diagnoses before prescribing.
 
-After each change, run the program and verify it behaves identically to before.
+### Part C — Choose one thing and fix it
 
-### Step 4 — Write down what changed
+From your diagnosis, pick the single most confusing section — not the biggest, the most *contained* one. The one you feel most certain about.
 
-For each refactoring move, write one sentence: what you changed and why it makes the code clearer. This is not a comment in the code — it is a note for yourself about the *decision*.
+Fix only that one thing. Then run the program and verify it behaves identically to before. Every feature must still work.
 
-## Topics You Will Learn
+Write down: what you changed, why, and how you verified nothing broke.
 
-- How to read unfamiliar code methodically
-- Extract function — the most important refactoring technique
-- When a comment is a sign of a naming problem
-- The rule: change one thing at a time, verify after each change
+### Part D — Reflect on the process
+
+After one change:
+1. Did fixing that one section make nearby code easier to read?
+2. Did it reveal another problem that was hidden before?
+3. Were you tempted to fix multiple things at once? What would have happened if you had?
+
+Refactoring is not a one-time cleanup. It is a discipline of making one small improvement at a time, verifying, then repeating.
+
+## The Rule
+
+Change one thing. Verify. Repeat.
+
+If you try to refactor everything at once, you will not know which change caused a breakage. Small steps are not slow — they are safe.
 
 ## Before You Start — Think About This
 
-1. Refactoring means the program's behaviour does not change. How do you verify behaviour has not changed if you have no automated tests? What would you check manually?
-2. If a function is 50 lines long, does that automatically mean it should be split? What is the right question to ask instead of "how long is it"?
-3. You find two sections of code that do almost the same thing — but not exactly. Is it better to merge them into one function (risking making it complicated) or leave the duplication? How do you decide?
+1. The code worked before you refactored. It still works after. Nothing changed for the user. What changed, and for whom?
+2. If refactoring does not change behaviour, how do you know when you are done? What is the signal that a section no longer needs refactoring?
+3. A colleague says: "Refactoring is a waste of time — just add the feature." They are not wrong that features matter. What would you say to them about why the state of the code affects how fast features can be added?
 
 ## When You're Stuck
 
-- If you are not sure whether a refactoring is safe, add a temporary `print` statement before and after to check the output is unchanged.
-- "Extract function" means: take a block of code, give it a name, move it to its own function, and call that function from where the block used to be. The program does exactly the same thing — it just has a name for that block now.
-- Small steps are safer than large steps. If you try to refactor everything at once and something breaks, you will not know which change caused it.
+- If you are not sure a refactoring is safe, run the program before and after and test every menu option. The program is small enough to test fully in 2 minutes.
+- The hardest part of refactoring is stopping. Each fix reveals another. Set a limit: fix one thing per session, then stop and commit.
 
 ## Once It Works — Go Further
 
-1. After refactoring, measure the length of your longest function. What is it now? Set a personal rule for the maximum length a function should be in your projects.
-2. Find a section of code that has a comment explaining what it does. Refactor the code so the comment is no longer needed — the code should explain itself through naming.
+1. After Part C, try the overdue feature again. Did the diagnosis and fix make it easier? Write one sentence comparing the experience to Part A.
+2. Look at the commit you made for the refactoring. The commit message should describe what changed structurally, not what behaviour changed. Write a commit message that someone could read in six months and understand exactly what you did and why.

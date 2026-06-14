@@ -8,73 +8,71 @@ nav_order: 3
 
 ## The Story
 
-Even after extracting functions, everything still lives in one file. As the library grows, this becomes a problem: the file that handles the menu also knows about CSV storage. The search function is in the same file as the display code. Changing how books are stored means reading through menu logic to find the relevant lines.
+The librarian calls again: "We are switching from CSV files to a proper database. Can you update the program?"
 
-Modules solve this by grouping related functions into separate files. Each file has a clear responsibility. When you want to change storage, you open `storage.py`. When you want to change the menu, you open `menu.py`. The rest of the program does not need to know or care about those details.
+You open `library.py`. The functions that handle CSV reading and writing are there — but so is the menu code, the search code, the display code. The CSV logic is mixed in with everything else. To change the storage format, you have to read through menu logic and display logic to find the relevant lines. You change one function and accidentally break a display function that was three lines away.
 
-This is called *separation of concerns* — and it is one of the most fundamental principles in software design.
+This is what it means for concerns to be mixed: *changing one thing requires understanding everything*.
+
+Now imagine a different design: one file handles storage, one file handles book logic, one file handles the interface. The librarian asks you to change storage. You open `storage.py`. Everything you need is there. You make the changes. You do not touch `books.py` or `interface.py` — they do not know or care how storage works.
+
+This property — changing one thing without touching the rest — is called **separation of concerns**. It is one of the most important ideas in software design.
 
 ## What to Do
 
-### Step 1 — Identify the three concerns
+### Part A — Name the three concerns in your library
 
-Your library program currently has three distinct concerns:
+Before creating any files, identify the three (or more) distinct concerns in your current codebase. For each concern, write:
 
-1. **Storage** — reading from and writing to `library.csv`
-2. **Books** — the logic for searching, filtering, and validating book data
-3. **Interface** — displaying the menu, reading user input, printing results
+- A one-word name for it
+- A description in one sentence: "This concern handles..."
+- The names of the functions currently in `library.py` that belong to it
 
-These three concerns should live in three files.
+You should find at least three concerns. Common ones: storage (reading/writing files), book logic (searching, validating, adding), interface (menus, input, display). You might find more.
 
-### Step 2 — Create the module files
+If a function belongs to two concerns, that is a signal — which concern does it *primarily* belong to, and what is it doing that it should not?
 
-Create three new Python files in your project folder:
-- `storage.py` — will contain `load_books()` and `save_book()`
-- `books.py` — will contain `search_books()`, `add_book()`, and any book-related logic
-- `interface.py` — will contain `show_menu()`, `get_user_choice()`, `print_book_list()`
+### Part B — Draw the dependency diagram
 
-Move the relevant functions from `library.py` into each file. Then import them back in `library.py`:
+Before moving any code, draw which module will depend on which.
 
-```
-from storage import load_books, save_book
-from books import search_books
-from interface import show_menu, print_book_list
-```
+For example: does the interface need to call storage functions directly? Or does it call book functions which call storage? Which module is at the centre — the one that knows nothing about the others?
 
-### Step 3 — Verify with each move
+Draw this on paper. Arrow means "depends on" or "calls functions from."
 
-After moving each function, run the program. Do not move everything at once and then try to fix all the errors simultaneously.
+The goal is to have no circular dependencies — A depends on B, but B never depends on A. If you find a circle, you need to rethink your module boundaries before moving any code.
 
-### Step 4 — Read `library.py` after the split
+### Part C — Move one function at a time
 
-The main file should now read as a clean orchestration of the three modules. It should import what it needs, and call functions. No storage logic. No display logic. No book logic. Just coordination.
+Create your new module files. Move one function into the correct file. Then immediately run the program — everything must still work. Update any imports in `library.py` to use the new location.
 
-## What to Observe
+Move the next function. Run the program again.
 
-Open any one module — say, `storage.py`. Notice that it knows nothing about the menu, and nothing about book validation. It only knows how to read and write CSV. If you later decide to switch from CSV to a database, you only change `storage.py`. Nothing else in the program needs to change.
+Do not move five functions and then try to fix all the errors. That approach makes it impossible to know which move caused a problem.
 
-This property — the ability to change one part without touching the rest — is what makes modular code worth the effort.
+### Part D — Change the storage format
 
-## Topics You Will Learn
+Once the split is complete, test the core promise: the librarian asks you to change the CSV column order — `title,author,year` becomes `year,title,author`. Make this change.
 
-- Python modules and `import` statements
-- `from module import function` vs `import module`
-- Separation of concerns
-- How module boundaries reduce the ripple effect of changes
+How many files did you have to touch?
+
+Before the split, the answer was "I had to read the whole thing." After the split, the answer should be "only the storage module."
+
+If you had to touch more than one module to change the storage format, your module boundaries were not clean enough. Investigate why — what leaked out of the storage module into the others?
 
 ## Before You Start — Think About This
 
-1. If `storage.py` needs to know the filename `library.csv`, where should that value live? In `storage.py`? In `library.py`? As a constant at the top of whichever file you put it in?
-2. Can `books.py` import from `storage.py`? Can `storage.py` import from `books.py`? What happens if two modules import from each other (a *circular import*)? How do you avoid it?
-3. A module should have a single clear responsibility that you can describe in one noun: "storage", "books", "interface". If you cannot describe the responsibility in one noun, the module is doing too much.
+1. Two modules that depend on each other (circular dependency) cannot be tested or changed independently. If `books.py` imports from `storage.py` AND `storage.py` imports from `books.py` — what happens when you try to load either one? Why does Python struggle with this?
+2. A well-designed module hides its implementation. If `interface.py` knows that books are stored in a CSV (and uses that knowledge directly), what happens when you switch to a database? What should `interface.py` know about storage?
+3. One sign of a good module split: you can describe what each module does in one noun. "Storage handles persistence." "Books handles the collection." "Interface handles the user." If you cannot describe a module in one noun, it is probably doing too many things.
 
 ## When You're Stuck
 
-- Move one function at a time. After each move, run the program. This makes errors easy to trace — if something breaks, you know which move caused it.
-- If a function in `books.py` needs access to storage, pass the books list as a parameter rather than importing storage directly from books.
-- `import error: cannot import name 'X'` means the function `X` either does not exist in the module you are importing from, or there is a typo. Check spelling and check that the function is at the top level (not indented inside another function).
+- The `import` statement in Python lets one file use functions from another. You do not need any new syntax — just `import` what you need.
+- Circular imports cause an error at startup. If you get one, trace the dependency chain — which module is depending on something it should not need?
+- If you discover that a function needs data from a module it should not know about, that data should probably be passed as a parameter instead of imported.
 
 ## Once It Works — Go Further
 
-1. Add a fourth module: `config.py`, containing only constants — the filename, the CSV column order, the pass mark for the quiz. Then import these constants into the modules that need them. This way, if you ever want to change the filename, you change it in one place.
-2. Count the lines in each module after the split. If one module is much longer than the others, investigate why — it may be doing more than its fair share.
+1. Add a `config.py` containing only constants: the filename, the CSV column order, any other fixed values. Import these constants into the modules that need them. What is the benefit of having all constants in one place?
+2. Now count the lines in each module. If one is much longer than the others, ask why — is it doing more than its share? What would you split out of it?

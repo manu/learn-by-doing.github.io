@@ -12,16 +12,20 @@ The program behaves identically before and after. But it becomes easier to read,
 
 ## Key Concepts
 
-- Better naming
-- Splitting large functions
-- Separating concerns into modules
-- Removing duplication
+- Diagnosing before fixing — read and list problems before changing anything
+- Naming as design — a hard-to-name thing is almost always a design problem
+- Extract functions — give unnamed ideas a name and a boundary
+- Separate concerns — each file has one reason to change
+- Remove duplication — every piece of knowledge in exactly one place
+- Code smells — patterns that signal a problem worth investigating
+- Architecture review — articulating what changed and why it matters
 
 ## The Questions to Ask
 
 - What is difficult to understand?
 - What would be hard to change?
 - What would break if I changed this one thing?
+- If I cannot name this — what does that tell me about its design?
 
 ## Exercises
 
@@ -29,3 +33,6 @@ The program behaves identically before and after. But it becomes easier to read,
 - [4.2 Extract Functions](exercise-02-extract-functions.md)
 - [4.3 Split into Modules](exercise-03-split-modules.md)
 - [4.4 Remove Duplication](exercise-04-remove-duplication.md)
+- [4.5 Code Smells](exercise-05-code-smells.md)
+- [4.6 Naming as Design](exercise-06-naming-as-design.md)
+- [4.7 Before and After](exercise-07-before-and-after.md)
