@@ -1,6 +1,6 @@
 ---
 title: "3.4 GitHub Issues"
-parent: "Git & History"
+parent: Git and History
 nav_order: 4
 ---
 

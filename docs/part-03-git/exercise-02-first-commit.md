@@ -1,6 +1,6 @@
 ---
 title: "3.2 First Commit"
-parent: "Git & History"
+parent: Git and History
 nav_order: 2
 ---
 

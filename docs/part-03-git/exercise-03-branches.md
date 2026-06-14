@@ -1,6 +1,6 @@
 ---
 title: "3.3 Branches"
-parent: "Git & History"
+parent: Git and History
 nav_order: 3
 ---
 
