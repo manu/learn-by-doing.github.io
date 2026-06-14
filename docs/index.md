@@ -4,7 +4,7 @@ nav_order: 1
 permalink: /
 ---
 
-# Engineering Through One Project
+# Build It
 
 ---
 
