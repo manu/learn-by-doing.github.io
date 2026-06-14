@@ -31,4 +31,6 @@ Each exercise introduces one new concept. By the end you will have used all the 
 | [0.7 Shelf Reports](exercise-07-loop-constructs.md) | for loops, range, nested loops |
 | [0.8 Prime Checker](exercise-08-prime-checker.md) | Loops and thinking about efficiency |
 | [0.9 Search and Skip](exercise-09-conditional-exits.md) | break and continue — conditional exits |
+| [0.10 Using Modules](exercise-10-using-modules.md) | import random, datetime — using built-in modules |
+| [0.11 Your Own Module](exercise-11-your-own-module.md) | Splitting code into your own importable files |
 | [0.26 Mini Library](exercise-26-mini-library.md) | All of the above, together |
