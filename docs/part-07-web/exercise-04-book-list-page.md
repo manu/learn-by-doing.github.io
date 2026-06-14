@@ -10,7 +10,7 @@ nav_order: 4
 
 So far your Flask pages return raw HTML strings from Python functions. This works, but it mixes two different concerns in one place: the logic (which books to show) and the presentation (how to display them). As the pages grow more complex, this becomes unmanageable.
 
-Flask has a template engine called *Jinja2* built in. Templates are `.html` files that contain placeholders — `{{ variable }}` — that Flask fills in with real data before sending the page. The Python function handles the logic; the template handles the presentation.
+Flask has a template engine called *Jinja2* built in. Templates are `.html` files that contain placeholders — `{% raw %}{{ variable }}{% endraw %}` — that Flask fills in with real data before sending the page. The Python function handles the logic; the template handles the presentation.
 
 This is the architecture that every Flask application uses.
 
@@ -29,11 +29,13 @@ Create `templates/books.html` — a proper HTML page with:
 - A footer showing the total count: "Showing 247 books"
 
 Use Jinja2 template syntax to inject the book data from Python:
+{% raw %}
 ```
 {% for book in books %}
     ... one table row per book ...
 {% endfor %}
 ```
+{% endraw %}
 
 Then update the `/books` route in `app.py` to query the database and pass the results to `render_template("books.html", books=book_list)`.
 
@@ -53,33 +55,35 @@ Then replace your plain HTML with Tailwind classes to make the page look clean:
 ### Step 4 — Create a base template
 
 Create `templates/base.html` with the navigation, head, and footer. Then make `books.html` extend it:
+{% raw %}
 ```
 {% extends "base.html" %}
 {% block content %}
   ... page-specific content here ...
 {% endblock %}
 ```
+{% endraw %}
 
 This means you only need to write the navigation once, and every page inherits it.
 
 ## Topics You Will Need
 
 - Flask `render_template()` and the `templates/` folder
-- Jinja2 template syntax: `{{ variable }}`, `{% for %}`, `{% if %}`, `{% extends %}`, `{% block %}`
+- Jinja2 template syntax: `{% raw %}{{ variable }}{% endraw %}`, `{% raw %}{% for %}{% endraw %}`, `{% raw %}{% if %}{% endraw %}`, `{% raw %}{% extends %}{% endraw %}`, `{% raw %}{% block %}{% endraw %}`
 - HTML table: `<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`
 - Tailwind CSS utility classes for layout, typography, and colour
-- Template inheritance: `base.html` with `{% block content %}`
+- Template inheritance: `base.html` with `{% raw %}{% block content %}{% endraw %}`
 
 ## Before You Start — Think About This
 
 1. What is the advantage of keeping HTML in `.html` files rather than in Python strings? (Think about what happens when a designer wants to change the look, or a programmer wants to change the data.)
-2. Jinja2 runs on the server before the page is sent to the browser. The browser receives pure HTML — it never sees the `{{ }}` syntax. Why does this matter for security?
+2. Jinja2 runs on the server before the page is sent to the browser. The browser receives pure HTML — it never sees the `{% raw %}{{ }}{% endraw %}` syntax. Why does this matter for security?
 3. Every page in the library will need the same navigation bar. What happens if the navigation bar is duplicated in every template file, and you want to add one more link?
 
 ## When You're Stuck
 
 - `render_template("books.html", books=results)` passes `results` to the template as the variable `books`.
-- In the template, `{{ book.title }}` assumes each book is a dictionary or an object with a `title` key. SQLite rows from `fetchall()` can be accessed by column name if you set `conn.row_factory = sqlite3.Row` on the connection.
+- In the template, `{% raw %}{{ book.title }}{% endraw %}` assumes each book is a dictionary or an object with a `title` key. SQLite rows from `fetchall()` can be accessed by column name if you set `conn.row_factory = sqlite3.Row` on the connection.
 - Start without Tailwind — get the data displaying correctly first, then add styling.
 - Tailwind documentation is at `tailwindcss.com/docs` — search for any concept you need (tables, flexbox, colours, spacing).
 

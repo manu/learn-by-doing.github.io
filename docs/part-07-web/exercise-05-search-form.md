@@ -58,7 +58,7 @@ Add a "Search" link to `base.html`. When clicked, it should take the user to the
 - HTML form: `<form method="GET" action="/search">`, `<input type="text" name="q">`, `<button type="submit">`
 - Why search uses GET (not POST): the query appears in the URL, making results linkable and bookmarkable
 - `request.args.get("q")` in Flask
-- Jinja2 `{% if results %}` conditional
+- Jinja2 `{% raw %}{% if results %}{% endraw %}` conditional
 - SQL `LIKE` with parameterised queries (not string formatting — you will understand why in Part 8)
 
 ## Before You Start — Think About This
@@ -70,8 +70,8 @@ Add a "Search" link to `base.html`. When clicked, it should take the user to the
 ## When You're Stuck
 
 - Always use parameterised queries: `cursor.execute("SELECT * FROM books WHERE LOWER(title) LIKE ?", ("%" + query.lower() + "%",))` — the `?` is a placeholder that SQLite fills in safely.
-- `{% if query %}` in the template checks whether the user has searched for anything. `{% if results %}` checks whether any results were found. These are two different conditions.
-- The `value="{{ query }}"` attribute on the input field re-populates the search box after submission so the user can see what they searched for.
+- `{% raw %}{% if query %}{% endraw %}` in the template checks whether the user has searched for anything. `{% raw %}{% if results %}{% endraw %}` checks whether any results were found. These are two different conditions.
+- The `{% raw %}value="{{ query }}"{% endraw %}` attribute on the input field re-populates the search box after submission so the user can see what they searched for.
 
 ## Once It Works — Go Further
 
