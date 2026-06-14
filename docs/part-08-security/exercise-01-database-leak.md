@@ -18,50 +18,37 @@ This exercise makes you feel that moment — so that you understand exactly what
 
 ## What to Do
 
-### Step 1 — Add a librarians table
+### Part A — Add librarians to the system
 
-Add a `librarians` table to your schema:
+The library web app needs a `librarians` table. Each librarian has a username and a password. Design the table columns yourself (you have done schema design in Part 6).
 
-```
-id        INTEGER PRIMARY KEY
-username  TEXT NOT NULL UNIQUE
-password  TEXT NOT NULL
-```
+Write a small script called `add_librarian.py` that asks for a username and password and saves both into the database, exactly as typed.
 
-Write a small script (`add_librarian.py`) that:
-- Asks for a username and password
-- Inserts the record into `librarians` with the password stored exactly as typed
+Add three librarians with passwords that look like real passwords — the kind someone might actually use.
 
-Add three librarians with realistic-looking passwords.
-
-### Step 2 — Open the database and read the passwords
+### Part B — Open the database as an attacker
 
 Close your Python script. Open `library.db` in DB Browser. Navigate to the `librarians` table.
 
 Read the passwords.
 
-You now have every librarian's password. You did not need to break any encryption. You did not need any special tools. You just opened a file.
+Write down what you see. You did not break any encryption. You did not use any special tools. You opened a file.
 
-### Step 3 — Think about the consequences
+### Part C — Reason through the consequences
 
-Write down answers to these questions:
+Write down answers to these three questions:
 
-1. If one of these librarians uses the same password for their email or their bank account — what does the attacker now have access to?
-2. If you were the librarian and found out your password was stored this way — how would you feel about the engineer who built the system?
-3. Is this the engineer's fault? They did not intend for the database to be stolen — they just did not think about what happens if it is. Is that an acceptable excuse?
+1. Most people use the same password for multiple accounts — email, banking, social media. If this database were stolen, what else could the attacker access?
+2. If you were one of the librarians and found out your password was stored like this — how would you feel about the engineer who built the system?
+3. The engineer did not intend for the database to be stolen. They simply never thought about what happens if it is. Is that an acceptable excuse?
 
-### Step 4 — Understand what a fix requires
+### Part D — Design the fix yourself
 
-A good fix would mean: even if someone steals the database, they cannot read the passwords.
+Before reading anything about how passwords are actually secured, write a one-paragraph description of what a secure password storage system would need to do.
 
-What would that require? Write a one-paragraph description of what a secure password storage system would need to do. Do not research solutions yet — think through it yourself first.
+The constraint: even if someone steals the database, they should not be able to read the passwords. How would you store a password so that it can be verified later — but not read?
 
-## Topics You Will Learn
-
-- What plaintext storage means and why it is always wrong
-- The difference between encryption (reversible) and hashing (one-way)
-- Why password security affects users beyond just the application
-- How to reason about threat models: "what happens if X is stolen?"
+Keep this paragraph. After Exercise 8.2, come back and compare your idea to what bcrypt actually does.
 
 ## Before You Start — Think About This
 

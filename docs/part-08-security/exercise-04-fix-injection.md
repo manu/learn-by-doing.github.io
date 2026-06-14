@@ -14,46 +14,38 @@ The fix is called *parameterised queries* (also called *prepared statements*). I
 
 ## What to Do
 
-### Step 1 — Fix every query in the application
+### Part A — Design the fix yourself
 
-Go through every place in `app.py` (and any other Python files that run SQL) where a string variable is inserted into a query.
+Before reading anything about parameterised queries, think through what went wrong in Exercise 8.3.
 
-Replace every instance of string concatenation or f-string formatting in SQL with a `?` placeholder:
+The database received SQL that contained both your code and the attacker's code, mixed together. The database could not tell the difference — it treated the whole thing as one command.
 
-**Vulnerable:**
-```
-"SELECT * FROM books WHERE title LIKE '%" + term + "%'"
-```
+What would a secure approach look like? Write your theory: how could you send the SQL structure and the user's value to the database in a way that keeps them permanently separate — so the user's value can never become SQL code?
 
-**Fixed:**
-```
-"SELECT * FROM books WHERE title LIKE ?"
-("%" + term + "%",)
-```
+Write this down before you look up the answer.
 
-The second argument to `cursor.execute()` is a tuple of values. SQLite substitutes each `?` with the corresponding value — but it treats those values as data, never as SQL code.
+### Part B — Fix every query in the application
 
-### Step 2 — Test the same injections
+Look up "parameterised queries" in SQLite with Python. Compare what you find to the theory you wrote in Part A.
 
-Run the same injection strings from Exercise 8.3:
-```
-%' OR '1'='1
-%'; DROP TABLE books; --
-%' UNION SELECT username, password, id FROM librarians --
-```
+Now go through your entire application — `app.py` and any other Python files that run SQL — and fix every query that builds SQL using string concatenation or f-strings.
 
-What happens now? The injections should produce zero results — not because they were filtered out, but because the database treats the entire string as a literal value to match against, not as SQL to execute.
+After fixing, run the application. The search should still work for normal queries.
 
-### Step 3 — Understand why it works
+### Part C — Test the same injections again
 
-Write a short explanation (3–4 sentences) of why parameterised queries prevent injection. Your explanation should answer:
-- What does the `?` placeholder do?
-- What is the difference between how the database processes a concatenated query versus a parameterised one?
-- Is there any input that could still break a parameterised query?
+Run the exact same injection strings from Exercise 8.3 against the fixed search. What happens now?
 
-### Step 4 — Check all database interactions
+The injections should produce no results — not because the dangerous characters were filtered out, but because of something more fundamental. Write down why the fix works — what is the database doing differently now?
 
-Do a full audit of your code. Find every `cursor.execute()` call and verify it uses `?` placeholders. This is a security audit — be thorough.
+### Part D — Conduct a full audit
+
+A security audit is a systematic search for a specific class of problem. Do a full audit of your code:
+- Find every place where the database is queried
+- Verify each one does not join user input into the SQL string
+- Mark each one as either "safe" or "needs fixing"
+
+Write down the list. Fix any remaining vulnerable queries.
 
 ## Topics You Will Learn
 

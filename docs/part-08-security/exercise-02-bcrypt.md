@@ -18,54 +18,44 @@ bcrypt is a hashing function designed specifically for passwords. It is intentio
 
 ## What to Do
 
-### Step 1 — Install bcrypt
+### Part A — Install and explore bcrypt
 
-```
-pip install bcrypt
-```
+bcrypt is a third-party Python library. Install it using pip.
 
-### Step 2 — Update the registration script
+Before using it in the library, run a small experiment first. Hash the same password twice. Compare the two hashes. Are they identical?
 
-Modify `add_librarian.py` so that instead of storing the plaintext password, it:
-1. Hashes the password using bcrypt
-2. Stores the hash in the database
+Now try to verify: take one of the hashes and check whether the original password matches it. Does it work, even though the two hashes look different?
 
-After adding a librarian, open DB Browser. The `password` column should now contain something like:
-```
-$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/lfKZ7hN...
-```
+Write down what you observe and think through why this is the case before moving on.
 
-That is the bcrypt hash. The original password is gone.
+### Part B — Store hashes instead of passwords
 
-### Step 3 — Build login verification
+Update `add_librarian.py` to hash the password before saving it to the database. The original password must not be stored anywhere.
 
-Write a function `verify_login(username, password)` that:
-1. Looks up the librarian by username in the database
-2. If not found, returns `False`
-3. If found, uses bcrypt to check whether the provided password matches the stored hash
-4. Returns `True` if it matches, `False` otherwise
+Add a librarian. Open `library.db` in DB Browser. Look at the `password` column. What does it contain now?
 
-Test it: correct password should return `True`, wrong password should return `False`.
+### Part C — Build the login check
 
-### Step 4 — Integrate with the Flask login route
+Write a function `verify_login(username, password)`. It should:
+- Look up the librarian by username
+- If no such username exists, the login fails
+- If the username exists, check whether the provided password matches the stored hash
 
-Add a login page to the web app:
-- `GET /login` — shows a login form (username + password fields)
-- `POST /login` — calls `verify_login()` with the submitted data, redirects to the home page on success, shows an error on failure
+Test it manually: verify that the correct password succeeds and a wrong password fails. At no point during this check is the stored password ever turned back into readable text.
 
-### Step 5 — Open the database again
+### Part D — Add the login page to Flask
 
-Open `library.db` in DB Browser. Look at the `password` column again.
+Add two routes:
+- A GET route that shows a login form with fields for username and password
+- A POST route that calls `verify_login()` with the submitted data
 
-Even if someone steals this database, the passwords cannot be read. They can try to guess — but bcrypt is slow enough that guessing millions of passwords takes a very long time.
+On success, redirect to the home page. On failure, show the form again with an error message. Never show a specific message like "wrong password" — just "invalid username or password." Why? Think about what information you would be giving an attacker.
 
-## Topics You Will Need
+### Part E — Open the database one more time
 
-- `bcrypt.hashpw(password.encode(), bcrypt.gensalt())` — hash a password
-- `bcrypt.checkpw(password.encode(), stored_hash)` — verify a password
-- Why `.encode()` is needed (bcrypt works with bytes, not strings)
-- Flask `request.form` — reading POST form data
-- `redirect()` and `url_for()` in Flask
+Open `library.db` in DB Browser. Look at the `password` column.
+
+Even if someone steals this database file right now, they cannot log in as a librarian. Write a short paragraph explaining why — and what an attacker would have to do to break it.
 
 ## Before You Start — Think About This
 

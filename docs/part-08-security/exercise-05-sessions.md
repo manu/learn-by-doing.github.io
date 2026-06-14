@@ -14,51 +14,54 @@ Sessions solve this. When a librarian logs in successfully, the server creates a
 
 ## What to Do
 
-### Step 1 — Enable Flask sessions
+### Part A — Feel the statelessness problem
 
-Flask sessions require a secret key — a random string used to sign the session cookie so it cannot be forged.
+After building the login in Exercise 8.2, test this scenario:
+1. Log in as a librarian — the login succeeds and you are taken to the home page
+2. In the browser, type the URL for the "Add Book" page directly and press Enter
+3. Are you still treated as logged in?
 
-Add to `app.py`:
-```
-app.secret_key = "a-long-random-string-change-this-in-production"
-```
+Open your Flask code and look at the "Add Book" route. Does it check whether the user is logged in? If not, anyone who knows the URL can add books without logging in at all.
 
-In a real application, this would never be hardcoded — it would be an environment variable. You will see why in Part 10.
+Write down: why does the login in Exercise 8.2 not actually protect any of the other pages?
 
-### Step 2 — Set the session on login
+### Part B — Understand sessions
 
-After a successful login, store the librarian's username in the session:
-```
-from flask import session
-session["username"] = username
-```
+HTTP is stateless — each request the browser sends is completely independent. The server has no memory of the previous request.
 
-Redirect to the home page.
+Sessions are a way to store state between requests. Think through the design:
+- When a librarian logs in successfully, the server needs to remember this
+- On every subsequent request, the browser needs to tell the server "I am the logged-in librarian"
+- The server needs to verify this claim
 
-### Step 3 — Protect routes
+How would you design this? What does the browser need to send? What does the server need to check? Write your design before reading about how Flask implements sessions.
 
-Create a helper function `require_login()` that:
-1. Checks whether `"username"` is in the session
-2. If yes, returns the username
-3. If no, redirects to `/login`
+### Part C — Implement sessions in Flask
 
-Apply this check to any route that should only be accessible to logged-in librarians (for example: adding a book, deleting a book, managing members).
+Look up Flask's `session` object. It works like a dictionary — you can store values in it after a successful login, and read them back on the next request.
 
-### Step 4 — Add a logout route
+Flask sessions require a secret key — a random string used to sign the session data so it cannot be forged. Look up where to set this in a Flask app and what it does.
 
-```
-GET /logout
-```
+Update your login route: after a successful login, store the librarian's identity in the session.
 
-This route should remove `"username"` from the session and redirect to `/login`.
+### Part D — Protect the restricted routes
 
-### Step 5 — Test the session
+Write a helper function that checks whether a session exists. If yes, the request continues. If no, the browser is redirected to the login page.
 
-1. Log in as a librarian — observe the cookie in Developer Tools (Application tab → Cookies)
-2. Open a protected route — it should work
-3. Log out — observe the cookie changes
-4. Try to access the protected route again — you should be redirected to login
-5. Close the browser tab, reopen, and navigate to the protected route — are you still logged in?
+Apply this check to every route that should only be accessible to logged-in librarians: adding a book, deleting a book, managing members.
+
+### Part E — Add logout and observe with Developer Tools
+
+Add a logout route that clears the session and redirects to the login page.
+
+Now test the full cycle with Developer Tools open (look in Application → Cookies):
+1. Log in — observe what appears in Cookies
+2. Navigate to a protected page — does it work?
+3. Log out — observe what changes in Cookies
+4. Try the protected page again — what happens?
+5. Close the browser completely, reopen, and visit the protected page — are you still logged in?
+
+Write down what you observe at each step.
 
 ## Topics You Will Learn
 
