@@ -8,79 +8,67 @@ nav_order: 3
 
 ## The Story
 
-In Exercise 7.2, you wrote everything from scratch: parsing the path, building the response headers, converting strings to bytes. It worked — but adding a single new URL required careful manual work.
+You have just built a server from scratch. It works. But to add a new page, you had to: check the path, build the status line, write the headers, add the blank line, convert your string to bytes, write the body. Every single page required every one of those steps, in the right order, every time.
 
-Flask automates all of that. A *route* in Flask connects a URL path to a Python function. When a request arrives for that path, Flask calls the function and sends back whatever it returns. That is the complete idea.
+Now imagine adding 20 pages to the library: a book list, a search page, a member list, a loan history, an add-book form. You would copy that entire sequence 20 times. One mistake anywhere — a missing header, a wrong status code — and the browser shows nothing.
 
-This exercise rebuilds Exercise 7.2's tiny server in Flask — in about a fifth of the code.
+Flask is the solution. A *route* in Flask is a Python function connected to a URL path. The function returns content. Flask handles everything else: the status code, the headers, the encoding. Adding a new page means writing one function.
+
+This exercise rebuilds what you built in Exercise 7.2 — in a fraction of the code.
 
 ## What to Do
 
-### Step 1 — Install Flask
+### Part A — Install Flask and understand what it is
 
-```
-pip install flask
-```
+Flask is a third-party Python library — it is not built in. Install it using pip (Python's package manager). Verify the installation by checking that you can import it.
 
-Verify it installed:
-```
-python -c "import flask; print(flask.__version__)"
-```
+Before writing any code, answer this: Flask is often called a "web framework." What does "framework" mean? How is it different from a library? Look it up.
 
-### Step 2 — The simplest Flask app
+### Part B — Build the same three pages in Flask
 
-Create `app.py`. Build a Flask application with three routes:
-- `GET /` — returns an HTML page with a heading and a list of book titles
-- `GET /books` — returns all books from the database as an HTML list
-- `GET /search` — accepts a query parameter `q` and returns matching books
+Create `app.py`. Build a Flask application with the same three pages you built in Exercise 7.2:
+- The root path `/` — library home page with a heading and book list
+- `/books` — all books from the database
+- A path that does not exist — should return an appropriate error
 
-The books should come from `library.db` (your SQLite database from Part 6), not from a hardcoded list.
+The books should come from `library.db`, not from a hardcoded list.
 
 Expected behaviour:
 ```
-http://localhost:5000/             → Home page with book count
-http://localhost:5000/books        → All books as an HTML list
-http://localhost:5000/search?q=1984 → Books matching "1984"
+/             → Home page with book count
+/books        → All books as an HTML list
+/search?q=1984 → Books matching "1984"
 ```
 
-### Step 3 — Run and verify
+### Part C — Compare to the raw server
 
-```
-python app.py
-```
+Run your Flask app and open the same three URLs in the browser. Keep the Network tab open.
 
-Open each URL in the browser. Open the Network tab and compare the request/response to what you built manually in Exercise 7.2. Notice:
-- Flask set the status code automatically
-- Flask set the `Content-Type` header automatically
-- Your function just returned a string — Flask handled everything else
+Compare what you see to Exercise 7.2:
+- Did Flask set the status code correctly without you specifying it?
+- Did Flask set the headers without you writing them?
+- What did your route function actually have to do?
 
-### Step 4 — Connect to the database
+Write down the differences in lines of code and complexity between the two approaches.
 
-Make `/books` and `/search` query `library.db`. Every request should run a fresh query — the function should not store any state between requests.
+### Part D — Connect search to the database
 
-## Topics You Will Need
-
-- `pip install flask`
-- `from flask import Flask, request`
-- `@app.route("/path")` decorator
-- `request.args.get("q")` — reading query parameters
-- `sqlite3` — querying the database inside a route function
-- HTML string generation — building an HTML response from Python strings
+Add the `/search` route. It should read the query parameter from the URL and search `library.db` for matching books. Every request should run a fresh database query — the function should not cache anything between requests.
 
 ## Before You Start — Think About This
 
-1. In Exercise 7.2, you wrote a loop that waited for connections. Where is that loop in the Flask version? (It is still there — Flask runs it for you when you call `app.run()`.)
-2. A Flask route function receives a request and returns a response. It should not store anything in global variables between requests. Why? (Think: what if two people make requests at the same time?)
-3. When you query the database inside a route function, you open a connection, run a query, and close the connection. Should you open one connection for the whole app, or open a new one for each request? What are the trade-offs?
+1. In Exercise 7.2, you wrote a loop that waited for incoming connections. Where is that loop in the Flask version? It is still running — where did it go?
+2. A route function should not store data in global variables. What would go wrong if two students searched at the exact same moment and your function used a global variable to store the results?
+3. Should you open one database connection for the entire app, or open a fresh connection for each request? Think through what happens when two requests arrive at the same time.
 
 ## When You're Stuck
 
-- A minimal Flask route: `@app.route("/"); def home(): return "<h1>Hello</h1>"`
-- `request.args` is a dictionary of query parameters. `request.args.get("q", "")` returns the value of `q`, or an empty string if it is missing.
-- To run Flask in development mode: `app.run(debug=True)`. This reloads the server automatically when you change the code.
-- If you get an error about a database being locked, make sure you are closing the connection after each request: `conn.close()`.
+- Flask uses a `@app.route("/path")` decorator to connect a URL to a function. Look up "Python decorators" if you haven't used them before.
+- To read query parameters from the URL (like `?q=history`), Flask provides a `request` object. Look up `request.args` in the Flask documentation.
+- Flask's development server has a debug mode that reloads automatically when you change the code. Look up how to enable it.
+- If the database appears locked, make sure you are closing the connection at the end of each request.
 
 ## Once It Works — Go Further
 
-1. Use Flask's `render_template()` instead of building HTML strings in Python. Create a `templates/` folder with an `index.html` file. This is the proper way to build Flask pages — HTML in `.html` files, not Python strings.
-2. What happens if the user requests `/books/12345` — a specific book by ID? Add a route that accepts the book ID as part of the URL path (`/books/<int:book_id>`) and returns that book's details.
+1. Right now your routes return raw HTML strings built in Python. Flask has a better approach: separate `.html` files with placeholders that Flask fills in. Look up `render_template()` and create a `templates/` folder. This sets up Exercise 7.4.
+2. Add a route `/books/<book_id>` that shows the details of one specific book. The book ID comes from the URL itself — Flask can extract it automatically. Look up how.

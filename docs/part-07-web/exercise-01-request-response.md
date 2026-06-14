@@ -8,67 +8,61 @@ nav_order: 1
 
 ## The Story
 
-Every time you open a website, your browser sends a message to a server and the server sends a message back. This happens so fast that it is invisible. Most people use the web for years without ever seeing what those messages look like.
+You have been building the library system as a command-line program. The librarian uses it by typing commands into a terminal. Now she wants something different: "Can multiple people use this from their own computers? Like a proper website?"
 
-Before you write a single line of web application code, you will watch a real request happen. This is the most important exercise in Part 7 — because everything that follows (Flask, routes, responses, forms) is just a structured way of creating these messages.
+You have used websites your entire life. You know what they look like. But you have never thought about what actually happens between the moment you press Enter in the address bar and the moment the page appears on your screen.
+
+Before building anything for the web, you are going to watch that process happen. This is the most important exercise in Part 7 — everything that follows (routes, responses, forms) is just a structured way of creating the messages you are about to observe.
+
+This exercise has no code. Just observation.
 
 ## What to Do
 
-### Step 1 — Open Developer Tools
+### Part A — Watch a real request
 
-Open any web browser (Chrome, Firefox, or Edge). Press `F12` to open Developer Tools. Click the **Network** tab.
+Open any web browser. Look for Developer Tools — in most browsers this is under the menu or opened with a keyboard shortcut (look it up for your browser). Find the **Network** tab. This tab records every conversation between your browser and a server.
 
-### Step 2 — Watch a request
+With the Network tab open, visit any website. Watch what appears.
 
-Type `http://example.com` in the address bar and press Enter. Watch the Network tab.
+Find the first row (the main document request) and click on it. A panel opens. Explore every section in that panel. Write down:
+- What did the browser ask for?
+- What did the server say in reply?
+- What number did the server send to indicate success or failure?
+- What type of content did the server send back?
 
-You will see one or more rows appear. Click the first row (the main document request). A panel opens on the right.
+### Part B — Read the actual message
 
-### Step 3 — Inspect the request
+Find the **Response** or **Preview** section of the panel. You are looking at the raw content the server sent — the exact text your browser received and turned into the page you see.
 
-In the panel, find the **Headers** tab. Look at:
+What is it? Copy a small section of it. What does it look like?
 
-- **Request URL**: What was requested
-- **Request Method**: Is it `GET` or something else?
-- **Status Code**: What did the server respond with? (200 means OK)
-- **Request Headers**: Information the browser sent to the server (browser type, accepted languages, etc.)
-- **Response Headers**: Information the server sent back (content type, date, server software)
+### Part C — Investigate three scenarios
 
-### Step 4 — Look at the response body
+Using only the Network tab, investigate and write down your findings for each:
 
-Click the **Response** or **Preview** tab. You will see the actual HTML that the server sent back. This is what the browser turned into the page you see.
+1. Visit a URL on any website that does not exist. What number does the server send back? What does that number mean?
+2. Find a search form on any website (a shopping site, a news site) and submit a search. Look at the Network tab. Does the URL change? Where does your search term appear? Is the method different from a regular page visit?
+3. Look at any page that has images. How many separate requests did the browser make to fully load the page? Why does loading one page require so many requests?
 
-### Step 5 — Explore
+### Part D — Write your mental model
 
-Try these and observe what changes in the Network tab:
+Based on everything you observed, write a short paragraph (your own words, not copied from anywhere) describing what happens between "pressing Enter in the address bar" and "the page appears on screen." Be as specific as you can. Use the technical terms you encountered.
 
-1. Visit a page that does not exist on a website (add `/doesnotexist` to any URL). What status code appears?
-2. Submit a search form on any website. What method does the search use — GET or POST? Look at the URL — does it change?
-3. Visit a page that uses `https://` instead of `http://`. Is there any visible difference in the Network tab?
-
-### Step 6 — Write down what you learned
-
-After exploring, write down your answers to:
-- What is the difference between a request and a response?
-- What is an HTTP method? What are the two most common ones and when would you use each?
-- What does a status code tell you?
-- What is the `Content-Type` response header and what does it mean?
-
-## Topics You Will Learn
-
-- HTTP — the language browsers and servers use to communicate
-- Request: URL, method (GET/POST), headers, body
-- Response: status code, headers, body (HTML/JSON/etc.)
-- Common status codes: 200 (OK), 301 (redirect), 404 (not found), 500 (server error)
-- The difference between GET (retrieve) and POST (submit data)
+Keep this paragraph. You will come back to it after Exercise 7.2.
 
 ## Before You Start — Think About This
 
-1. When you type a URL and press Enter, the browser sends a request. Who receives it? How does the browser know where to send it?
-2. The server sends back HTML. The browser then reads that HTML and may need to request more things (images, CSS, JavaScript). Watch the Network tab — how many requests does a typical page make?
-3. A web page and a web application both use HTTP. What is the difference between them?
+1. When you type a URL and press Enter, your browser sends a request somewhere. How does the browser know *where* to send it? What translates "google.com" into an actual location?
+2. The server sends back text. The browser reads that text and shows you a visual page. What tells the browser to treat the text as a page, not as a document to download?
+3. The response has a number (200, 404, 500...) and a body (the content). Why are both needed? What does the number tell you that the body cannot?
+
+## When You're Stuck
+
+- Developer Tools is in every browser but has different keyboard shortcuts. Search for "open developer tools" plus your browser name.
+- The Network tab may appear empty if you opened it after loading the page. Reload the page with the tab already open.
+- Some requests load fast and disappear from view. You can preserve the log — look for a setting like "Preserve log" or "Keep log."
 
 ## Once It Works — Go Further
 
-1. Use the Network tab to find a request for an image on any page. What is the `Content-Type` of the response? How is it different from an HTML response?
-2. Look at the `User-Agent` header in any request. What information does it contain? Why would a server care about it?
+1. Find a request for an image on any page. Look at its Content-Type. How is it different from the Content-Type of the page itself? Why does this make sense?
+2. Look at the `User-Agent` header in any request. What information is your browser revealing about itself? Why would a server care what browser you are using?

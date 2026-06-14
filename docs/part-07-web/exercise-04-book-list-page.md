@@ -8,86 +8,63 @@ nav_order: 4
 
 ## The Story
 
-So far your Flask pages return raw HTML strings from Python functions. This works, but it mixes two different concerns in one place: the logic (which books to show) and the presentation (how to display them). As the pages grow more complex, this becomes unmanageable.
+The librarian opens the library web page for the first time. The book list appears — but it is raw text, no formatting, no navigation, no way to tell where the page ends. Ten thousand book titles in a single unstyled wall of text.
 
-Flask has a template engine called *Jinja2* built in. Templates are `.html` files that contain placeholders — `{% raw %}{{ variable }}{% endraw %}` — that Flask fills in with real data before sending the page. The Python function handles the logic; the template handles the presentation.
+"This doesn't look like a real system," she says. "The school's canteen has a better website than this."
 
-This is the architecture that every Flask application uses.
+She is right. The page works technically. But a page that is hard to read is a page that nobody uses.
+
+There is also a code problem. Right now, every route function in `app.py` builds HTML by joining Python strings together. When the navigation bar needs an extra link, you change it in every function. When the table layout changes, you update every function separately. The Python code and the HTML presentation are tangled together.
+
+This exercise separates them properly.
 
 ## What to Do
 
-### Step 1 — Create the templates folder
+### Part A — Create the book list template
 
-Inside your project folder, create a folder called `templates/`. Flask looks for templates here automatically.
+Right now your `/books` route builds HTML inside Python. The goal: move all the HTML into a separate file, and have Python only send the data.
 
-### Step 2 — Build the book list page
+Create a `templates/` folder and a `books.html` file inside it. This file should produce a proper HTML page with:
+- A navigation bar with links to Home, Books, and Search
+- A heading showing what page this is
+- A table with columns for title, author, and year — one row per book
+- A footer showing the total number of books
 
-Create `templates/books.html` — a proper HTML page with:
-- A navigation bar with links: Home, Books, Search
-- A heading: "Library — All Books"
-- A table showing all books: title, author, year
-- A footer showing the total count: "Showing 247 books"
+The book data comes from Python. Look up Flask's `render_template()` function — it takes a template filename and keyword arguments, and returns a complete HTML response.
 
-Use Jinja2 template syntax to inject the book data from Python:
-{% raw %}
-```
-{% for book in books %}
-    ... one table row per book ...
-{% endfor %}
-```
-{% endraw %}
+### Part B — Make the page look like a real system
 
-Then update the `/books` route in `app.py` to query the database and pass the results to `render_template("books.html", books=book_list)`.
+The page works but it is unstyled. Tailwind CSS is a way to style HTML using class names directly on the elements — no separate CSS file to write.
 
-### Step 3 — Add Tailwind CSS
+Look up how to include Tailwind CSS in an HTML page. Add it to your template and style the page. Aim for:
+- A readable table with visible borders or alternating row colours
+- A navigation bar that looks like navigation
+- Clean typography — a font that is easy to read
 
-Link Tailwind CSS from a CDN in the `<head>` of your HTML:
-```
-<script src="https://cdn.tailwindcss.com"></script>
-```
+Work from the Tailwind documentation. Search for specific things you need.
 
-Then replace your plain HTML with Tailwind classes to make the page look clean:
-- White card for the table on a light grey background
-- Alternating row colours
-- Clean sans-serif font
-- A styled navigation bar
+### Part C — Create a base template
 
-### Step 4 — Create a base template
+Every page in the library will need the same navigation bar, the same `<head>` section, and the same footer. Right now if you add another page, you copy all that into a new file. When you want to add one navigation link, you change every file.
 
-Create `templates/base.html` with the navigation, head, and footer. Then make `books.html` extend it:
-{% raw %}
-```
-{% extends "base.html" %}
-{% block content %}
-  ... page-specific content here ...
-{% endblock %}
-```
-{% endraw %}
+A better approach: one base template that all pages inherit. Look up Jinja2 template inheritance — specifically the concepts of `extends` and `block`. Create `templates/base.html` with the shared structure, then rewrite `books.html` so it only contains the parts that are unique to the book list.
 
-This means you only need to write the navigation once, and every page inherits it.
-
-## Topics You Will Need
-
-- Flask `render_template()` and the `templates/` folder
-- Jinja2 template syntax: `{% raw %}{{ variable }}{% endraw %}`, `{% raw %}{% for %}{% endraw %}`, `{% raw %}{% if %}{% endraw %}`, `{% raw %}{% extends %}{% endraw %}`, `{% raw %}{% block %}{% endraw %}`
-- HTML table: `<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>`, `<td>`
-- Tailwind CSS utility classes for layout, typography, and colour
-- Template inheritance: `base.html` with `{% raw %}{% block content %}{% endraw %}`
+Test that the page still looks identical after the refactor.
 
 ## Before You Start — Think About This
 
-1. What is the advantage of keeping HTML in `.html` files rather than in Python strings? (Think about what happens when a designer wants to change the look, or a programmer wants to change the data.)
-2. Jinja2 runs on the server before the page is sent to the browser. The browser receives pure HTML — it never sees the `{% raw %}{{ }}{% endraw %}` syntax. Why does this matter for security?
-3. Every page in the library will need the same navigation bar. What happens if the navigation bar is duplicated in every template file, and you want to add one more link?
+1. Python handles the logic (which books to fetch, how many). HTML handles the presentation (how they look). What happens when both are mixed together in Python string-building code? Who can change the look without touching the logic?
+2. Jinja2 runs on the server and produces plain HTML before sending anything to the browser. The browser never sees the template syntax. Why does this matter — what would happen if the browser had to run the template itself?
+3. If the navigation bar is duplicated in every template, and you want to add one more link, you must change N files. What is N as the app grows? What is N with template inheritance?
 
 ## When You're Stuck
 
-- `render_template("books.html", books=results)` passes `results` to the template as the variable `books`.
-- In the template, `{% raw %}{{ book.title }}{% endraw %}` assumes each book is a dictionary or an object with a `title` key. SQLite rows from `fetchall()` can be accessed by column name if you set `conn.row_factory = sqlite3.Row` on the connection.
-- Start without Tailwind — get the data displaying correctly first, then add styling.
-- Tailwind documentation is at `tailwindcss.com/docs` — search for any concept you need (tables, flexbox, colours, spacing).
+- Flask's `render_template()` passes Python variables to the template. Look up how to access those variables inside the template to display list data row by row.
+- SQLite returns rows as tuples by default. To access columns by name (like `book.title`), look up `sqlite3.Row` and how to set it as the `row_factory` on the connection.
+- Start with no styling — get the data displaying correctly in a plain HTML table first. Add Tailwind only after the data is right.
+- Tailwind's documentation is searchable. Look up specific things: "tailwind table", "tailwind navbar", "tailwind card".
 
 ## Once It Works — Go Further
 
-1. Add pagination to the book list — show 20 books per page, with "Previous" and "Next" buttons. The URL should change to `/books?page=2`, `/books?page=3`, etc.
-2. Make the column headers clickable so that clicking "Title" sorts the list by title, and clicking "Year" sorts by year. Look up how to pass sort parameters through the URL.
+1. The librarian would like to see the list paginated — 20 books per page, with Previous and Next links. The URL should change to `/books?page=2` for the second page. How do you pass the page number through the URL and use it in the SQL query?
+2. Can the column headers be clickable links that sort the table? Clicking "Title" should sort by title; clicking "Year" should sort by year. Think about how the sort column and direction travel through the URL.

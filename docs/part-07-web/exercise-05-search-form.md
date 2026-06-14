@@ -8,72 +8,66 @@ nav_order: 5
 
 ## The Story
 
-The book list page shows all books. The librarian needs to find one specific book among 10,000. A search form is the interface to that capability.
+The book list page is live. The librarian opens it, sees 10,000 books, and starts scrolling. After scrolling for thirty seconds without finding what she needs, she stops.
 
-This exercise teaches you how HTML forms work, how data travels from the browser to the server, and how the server uses that data to query the database and return relevant results. This is the complete cycle: user types → browser sends request → server runs SQL → server returns HTML → browser displays results.
+"Can I search? Instead of scrolling through all of them?"
+
+This is exactly the problem search solves. But before building the search box, think about what needs to happen:
+
+1. The librarian types a word into a box on the page
+2. The browser sends that word to the server
+3. The server queries the database for matching books
+4. The server sends back a page with only those books
+5. The browser shows the results
+
+Every step in that chain involves something you have not built yet. This exercise builds them all.
 
 ## What to Do
 
-### Step 1 — Create the search form page
+### Part A — Build the search form
 
-Create `templates/search.html`. It should contain:
-- A search input field and a "Search" button
-- A results section below that appears only when there are results to show
+Create `templates/search.html`. It should have a text input where the librarian types her search, a button to submit, and a results section below.
 
-```
-[Search library...      ] [ Search ]
+When no search has been submitted yet, the results section should be empty. When a search has results, it shows a table of matching books. When a search has no results, it says so — "No books found for 'xyz'" — not an empty table.
 
-Showing 3 results for "mystery"
+Think about what the page looks like in each of these three states before you write any HTML.
 
-Title                    Author          Year
------------------------------------------------
-The Mystery of...        Author A        2001
-A Mystery in...          Author B        1998
-Mystery at...            Author C        2015
-```
+### Part B — Handle the search in Flask
 
-### Step 2 — Handle the search in Flask
+Add a `/search` route. This route must work correctly in two situations:
+- Someone visits `/search` with nothing typed yet
+- Someone visits `/search?q=mystery` after typing "mystery"
 
-Add a route for `/search` in `app.py`. This route must handle two cases:
+The route reads the search term, queries the database for books whose titles contain that word, and passes the results to the template.
 
-1. **No query** (`GET /search` with no `q` parameter): show the empty search form
-2. **With query** (`GET /search?q=mystery`): run the SQL query and show results
+### Part C — Test the edges
 
-The SQL query should use `LIKE '%query%'` to find books whose title contains the search term. Return the results to the template.
+A form that works with clean input is not a complete form. Test each of these and make sure the page handles them without crashing or showing incorrect results:
+- The user clicks Search without typing anything
+- The user searches for a word with no matches
+- The user types only spaces
+- The user types a word containing an apostrophe like `O'Brien`
 
-### Step 3 — Handle edge cases
+For the apostrophe case: try building the SQL query by joining the search term directly into the SQL string. What happens? This is a preview of Exercise 8.3.
 
-Test these cases and make sure the page handles each gracefully:
-- Empty search (user clicks Search without typing anything)
-- Search that matches no books
-- Search term that contains a special character like `'` or `"`
-- Very long search term
+### Part D — Link it from navigation
 
-### Step 4 — Link the search from the navigation
-
-Add a "Search" link to `base.html`. When clicked, it should take the user to the search page.
-
-## Topics You Will Need
-
-- HTML form: `<form method="GET" action="/search">`, `<input type="text" name="q">`, `<button type="submit">`
-- Why search uses GET (not POST): the query appears in the URL, making results linkable and bookmarkable
-- `request.args.get("q")` in Flask
-- Jinja2 `{% raw %}{% if results %}{% endraw %}` conditional
-- SQL `LIKE` with parameterised queries (not string formatting — you will understand why in Part 8)
+Add "Search" to the navigation bar in `base.html`. The link should take the librarian directly to the search page.
 
 ## Before You Start — Think About This
 
-1. A search form uses `method="GET"` — the search term appears in the URL as `/search?q=mystery`. A login form uses `method="POST"` — the password does not appear in the URL. Why is this distinction important?
-2. If a user searches for `O'Brien` (with an apostrophe), what happens if you build the SQL query by concatenating strings: `"WHERE title LIKE '%" + query + "%'"`)? Try it. (This is a preview of Exercise 8.3.)
-3. When there are no results, the page should say "No books found for 'xyz'" — not just show an empty table. How does the template know whether to show this message?
+1. The search form uses GET — the search term appears in the URL as `?q=mystery`. Why is this a good choice for search? What benefit does having the query in the URL provide?
+2. The route must handle two cases: a visit with no query, and a visit with a query. How does the route know which case it is? What does it receive from Flask when the query is absent?
+3. The template needs to show different content depending on whether the user has searched, and whether the search found anything. These are two separate conditions. Draw the three states on paper before writing any template code.
 
 ## When You're Stuck
 
-- Always use parameterised queries: `cursor.execute("SELECT * FROM books WHERE LOWER(title) LIKE ?", ("%" + query.lower() + "%",))` — the `?` is a placeholder that SQLite fills in safely.
-- `{% raw %}{% if query %}{% endraw %}` in the template checks whether the user has searched for anything. `{% raw %}{% if results %}{% endraw %}` checks whether any results were found. These are two different conditions.
-- The `{% raw %}value="{{ query }}"{% endraw %}` attribute on the input field re-populates the search box after submission so the user can see what they searched for.
+- HTML forms use the `action` attribute to specify where the form sends its data, and the `method` attribute to specify GET or POST. For search, use GET.
+- To read what the user typed, Flask provides a way to access query parameters from the URL. Look up how to read query parameters in the Flask documentation.
+- When building SQL queries with user input, use placeholders — a `?` in the SQL string where the value goes, with the actual value passed separately. Never join user input directly into the SQL string. Look up "parameterised queries" to understand why.
+- To search for books *containing* a word, not just books *starting with* a word, look up the SQL `LIKE` operator and the `%` wildcard.
 
 ## Once It Works — Go Further
 
-1. Add a filter to the search form: a dropdown that lets the user search by title, by author, or by year. The SQL query changes depending on which field they choose.
-2. Highlight the search term in the results — wherever the search word appears in the title, wrap it in `<mark>` tags so it stands out. Do this in the template using a Jinja2 filter or a Python helper function.
+1. Add a dropdown to the search form so the librarian can choose to search by title, by author, or by year. The SQL query should change based on which field she selects.
+2. Highlight the search term wherever it appears in the results — so "mystery" is visually marked in every matching title. Think about where this logic belongs: in the template, or in a Python helper function.
