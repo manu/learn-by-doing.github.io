@@ -28,5 +28,7 @@ Each exercise introduces one new concept. By the end you will have used all the 
 | [0.4 Marks Analysis](exercise-04-marks-analysis.md) | Lists and working with many values |
 | [0.5 Student Records](exercise-05-student-records.md) | Dictionaries and structured data |
 | [0.6 Book Catalog](exercise-06-book-catalog.md) | Reading from a file |
+| [0.7 Shelf Reports](exercise-07-loop-constructs.md) | for loops, range, nested loops |
 | [0.8 Prime Checker](exercise-08-prime-checker.md) | Loops and thinking about efficiency |
+| [0.9 Search and Skip](exercise-09-conditional-exits.md) | break and continue — conditional exits |
 | [0.26 Mini Library](exercise-26-mini-library.md) | All of the above, together |
