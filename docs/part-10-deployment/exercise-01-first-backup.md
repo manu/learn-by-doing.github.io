@@ -16,48 +16,40 @@ This is your first deployment.
 
 ## What to Do
 
-### Step 1 — Copy the project to the Pi
+### Part A — Move the project to the Pi
 
-From your laptop, copy the project files to the Pi:
-```
-scp -r ~/library-project pi@192.168.x.x:~/library-project
-```
+The library project is on your laptop. The Raspberry Pi needs to have the code, the database, and all dependencies.
 
-Or clone from GitHub if you have pushed your code there.
+Think through what needs to transfer:
+- The Python source files
+- The database file (`library.db`)
+- The list of Python packages the app depends on
 
-### Step 2 — Install dependencies on the Pi
+How will you move these files? There are several approaches — look up `scp` for secure file copy, or use git if you have pushed to GitHub. Choose one and move the project.
 
-SSH into the Pi and install Flask and bcrypt:
-```
-ssh pi@192.168.x.x
-cd library-project
-pip3 install flask bcrypt
-```
+### Part B — Install dependencies on the Pi
 
-### Step 3 — Run Flask on the Pi
+SSH into the Pi. The Pi does not have Flask or bcrypt installed. Install them.
 
-By default, Flask binds to `127.0.0.1` (localhost only). To accept connections from other devices on the network, bind to `0.0.0.0`:
+If you used a `requirements.txt` file to track your project's dependencies, this is the right moment to use it. If you have not created one, create it now — it lists every package the project needs.
 
-```
-flask run --host=0.0.0.0 --port=5000
-```
+### Part C — Start the app and access it from another device
 
-### Step 4 — Access from another device
+Start Flask on the Pi. There is one important difference from running it on your laptop: Flask's default configuration only accepts connections from the Pi itself. You need to tell Flask to accept connections from any device on the network.
 
-On another device on the same network, open a browser and navigate to:
-```
-http://192.168.x.x:5000
-```
+Look up how to configure Flask's host binding. Then start the app.
 
-Replace `192.168.x.x` with the Pi's IP address. The library should load.
+From another device on the same network, open a browser and navigate to the Pi's IP address on the correct port. The library should load.
 
-### Step 5 — What breaks when you close the SSH connection
+### Part D — Discover what breaks
 
-Close the SSH session (or press Ctrl+C). What happens to the web app?
+Close the SSH session (without stopping Flask first). Then try to load the library from the browser.
 
-Try to access it from the browser. It is gone.
+What happened? Why?
 
-Write down: why is this a problem for a production service? What would need to change?
+Now reboot the Pi. After it comes back up, try to load the library again without doing anything else.
+
+Write down every problem you discovered. These are the requirements for Exercise 10.3.
 
 ## Topics You Will Learn
 

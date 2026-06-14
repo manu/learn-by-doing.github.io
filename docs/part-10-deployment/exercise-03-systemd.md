@@ -16,47 +16,38 @@ If the Pi reboots, the library is down. If you forget to restart Flask after a c
 
 ## What to Do
 
-### Step 1 — Create a systemd unit file
+### Part A — Design the service properties
 
-Create `/etc/systemd/system/library.service`:
+Before creating any files, write down the properties your library service must have:
+1. It must start automatically when the Pi boots
+2. If Flask crashes, it must restart without anyone having to log in and start it manually
+3. Its output (logs) must be captured so you can read them later
+4. It must run as a specific user, not as root
 
-This file describes how to run Flask:
+Look up `systemd unit files` — a systemd service is described in a text file called a unit file. Find out what the three sections are (`[Unit]`, `[Service]`, `[Install]`) and what goes in each one.
+
+### Part B — Create the unit file
+
+Create a unit file for the library service at `/etc/systemd/system/library.service`. The file must specify:
+- A description of what this service is
+- When to start it (after the network is ready)
 - Which user to run as
-- Which directory to start from
-- The command to run (`flask run` or `gunicorn`)
-- Environment variables (the Flask app name, secret key)
-- What to do if it crashes (restart automatically)
-- When to start it (after the network is up, on every boot)
+- Which directory to run from
+- The command that starts Flask (consider using Gunicorn instead of Flask's development server — look up why)
+- Any environment variables Flask needs (the app name, the secret key)
+- What to do if the service crashes
 
-### Step 2 — Enable and start the service
+### Part C — Enable, start, and verify
 
-```
-sudo systemctl daemon-reload
-sudo systemctl enable library
-sudo systemctl start library
-```
+After creating the unit file, tell systemd about it, enable it to start on boot, and start it immediately. Check its status.
 
-`enable` means "start this on every boot." `start` means "start it right now."
+### Part D — Test that it actually works
 
-### Step 3 — Verify it is running
+Reboot the Pi completely. Wait for it to come back. Without SSHing in or running any commands, open a browser and navigate to `http://library.elasticnode.com`.
 
-```
-sudo systemctl status library
-```
+If the library loads, your service is working correctly.
 
-You should see: active (running). The last few lines of output should show Flask starting up.
-
-### Step 4 — Reboot and verify
-
-```
-sudo reboot
-```
-
-Wait for the Pi to come back up. Without doing anything else, navigate to `http://library.elasticnode.com` in the browser. The library should be running — Flask started automatically on boot.
-
-### Step 5 — Test automatic restart
-
-Find the process ID of Flask: `sudo systemctl status library`. Then kill it: `sudo kill -9 <PID>`. Within a few seconds, check `systemctl status library` again. systemd should have restarted it automatically.
+Then test the self-healing: find the process ID of the running Flask process and terminate it forcefully. Wait a few seconds. Check the service status. Has systemd restarted it?
 
 ## Topics You Will Learn
 

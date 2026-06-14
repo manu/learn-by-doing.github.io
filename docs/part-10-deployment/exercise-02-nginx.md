@@ -18,47 +18,38 @@ The browser talks to Nginx. Nginx talks to Flask. Flask never talks to the brows
 
 ## What to Do
 
-### Step 1 — Install Nginx on the Pi
+### Part A — Install Nginx and observe the default page
 
-```
-sudo apt install nginx
-sudo systemctl start nginx
-sudo systemctl enable nginx
-```
+Install Nginx on the Pi using the package manager. After installation, start it and configure it to start automatically on every boot.
 
-Verify it is running by navigating to `http://192.168.x.x` (no port number) in the browser. You should see the Nginx default page.
+Open a browser and navigate to the Pi's IP address — no port number, just the address. You should see Nginx's default welcome page. Write down what you observe: Nginx is already serving a page, and Flask has nothing to do with it.
 
-### Step 2 — Create a configuration file for the library
+### Part B — Create the library's configuration
 
-Create `/etc/nginx/sites-available/library`:
+Nginx's configuration tells it how to handle different hostnames and paths. For the library, you need to configure Nginx to:
+- Listen for requests to `library.elasticnode.com` on port 80
+- Forward those requests to Flask on port 5000
+- Pass the real browser's IP address to Flask (so logs show the actual visitor)
 
-This file tells Nginx:
-- Listen on port 80 for requests to `library.elasticnode.com`
-- Forward those requests to `localhost:5000` (Flask)
-- Pass the real client IP address in a header so Flask can log it
+Look up "Nginx reverse proxy configuration" and "Nginx server block". Nginx keeps available configurations in one folder and enabled configurations in another — learn how these two folders relate and why.
 
-### Step 3 — Enable the site
+Write the configuration file. Run Nginx's built-in configuration checker after every edit — it tells you exactly what is wrong.
 
-```
-sudo ln -s /etc/nginx/sites-available/library /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-```
+### Part C — Enable and reload
 
-`nginx -t` tests the configuration for errors before reloading.
+Enable your configuration and reload Nginx so it picks up the new settings without restarting completely (a restart briefly drops all connections).
 
-### Step 4 — Access via the domain name
+If the reload fails, read the error carefully — Nginx tells you exactly which line has a problem.
 
-Make sure:
-- DNS is resolving `library.elasticnode.com` to the Pi's IP (from Exercise 9.3)
-- Flask is running on the Pi on port 5000
-- Nginx is running on port 80
+### Part D — Access the library through Nginx
 
-Then navigate to `http://library.elasticnode.com`. The library should load — through Nginx, which forwarded the request to Flask.
+Verify all three layers are running: DNS resolves the name, Nginx is on port 80, and Flask is on port 5000.
 
-### Step 5 — Understand what Nginx is doing
+Navigate to `http://library.elasticnode.com` in the browser. The library should load.
 
-Use the Network tab in Developer Tools. Look at the response headers. Can you tell that Nginx is in the middle? What headers does it add?
+Open Developer Tools and look at the response headers. Can you tell that Nginx is in the middle? What headers does Nginx add that Flask did not?
+
+Draw the complete request path on paper: browser → DNS → Nginx → Flask → database → Flask → Nginx → browser. This is the architecture you have built.
 
 ## Topics You Will Learn
 

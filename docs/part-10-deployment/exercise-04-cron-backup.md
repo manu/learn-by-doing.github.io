@@ -16,44 +16,35 @@ The answer is backups. But backups only help if they run reliably, every day, wi
 
 ## What to Do
 
-### Step 1 — Write the backup script
+### Part A — Write the backup script
 
-Create `/home/pi/scripts/backup_library.sh`:
+Write a shell script called `backup_library.sh`. It should:
+- Create a `backups/` folder if one does not already exist
+- Copy `library.db` to the backups folder with today's date in the filename (so each backup is uniquely named and you can see when it was made)
+- Delete backup files older than 30 days so the disk does not fill up over time
+- Write one line to a log file: the date, time, and whether the backup succeeded or failed
 
-This script should:
-1. Create a `backups/` folder if it does not exist
-2. Copy `library.db` to `backups/library-YYYY-MM-DD.db` (today's date in the filename)
-3. Delete any backup files older than 30 days (to avoid filling the disk)
-4. Log one line to a logfile: the date, time, and whether the backup succeeded or failed
+Test the script by running it manually. Verify the backup file exists and the log file has an entry. Run it a second time and verify it does not delete the first backup (it is not yet 30 days old).
 
-Test it manually:
-```
-bash /home/pi/scripts/backup_library.sh
-```
+### Part B — Learn cron syntax
 
-Verify the backup file was created and the log has an entry.
+Cron schedules are written as five fields: minute, hour, day-of-month, month, day-of-week. A `*` means "every." Look up the format and write out in plain English what each of these means before using them:
 
-### Step 2 — Schedule it with cron
+- What does `0 2 * * *` mean?
+- What does `30 8 * * 1` mean?
+- What does `*/15 * * * *` mean?
 
-Open the cron editor:
-```
-crontab -e
-```
+### Part C — Schedule the backup
 
-Add a line to run the backup script every night at 2am:
-```
-0 2 * * * /home/pi/scripts/backup_library.sh
-```
+Open the cron editor and add an entry to run the backup script every night at 2am. Then test it without waiting until 2am: change the schedule to run one minute from now, wait for it to trigger, check the backup folder and the log file, then restore the 2am schedule.
 
-The five fields mean: minute, hour, day of month, month, day of week. `0 2 * * *` means: minute 0, hour 2, every day, every month, every day of week.
+### Part D — Verify the backup is actually usable
 
-### Step 3 — Test the schedule (without waiting until 2am)
+Copy the backup file to your laptop. Open it in DB Browser. Verify the tables and data are intact.
 
-Change the cron entry temporarily to run one minute from now. Wait for it to trigger. Check the backup folder and the log. Then restore the `0 2 * * *` schedule.
+A backup that cannot be restored is not a backup — it is a false sense of security. Write down the exact steps needed to restore the library from the most recent backup, so the librarian could follow them in an emergency.
 
-### Step 4 — Verify the backup is usable
-
-Restore the backup to a test location and open it with DB Browser. Verify the tables and data are intact. A backup that cannot be restored is worthless.
+This restore procedure is as important as the backup itself.
 
 ## Topics You Will Learn
 

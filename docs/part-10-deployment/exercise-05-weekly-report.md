@@ -16,62 +16,37 @@ This exercise combines SQL queries, Python, shell scripting, and cron scheduling
 
 ## What to Do
 
-### Step 1 — Write the report queries
+### Part A — Write the queries first
 
-Write the SQL queries that produce the weekly statistics. Run them in DB Browser first to verify the results:
+Before writing any Python, write and test the SQL queries in DB Browser. Verify each one returns correct results:
 
-1. Total loans in the last 7 days
-2. Top 5 most borrowed books in the last 7 days
-3. Top 3 members by loans in the last 7 days
-4. Books currently overdue (borrowed > 14 days ago, not returned)
-5. Total books in the library, total members, total active loans
+1. How many loans were created in the last 7 days?
+2. What are the top 5 most borrowed books in the last 7 days?
+3. Which 3 members borrowed the most in the last 7 days?
+4. Which books are currently overdue — borrowed more than 14 days ago and not yet returned?
+5. Total books, total members, total active loans right now
 
-### Step 2 — Write the report script
+For the "last 7 days" queries, think carefully: if the report runs on Monday, does "last 7 days" mean the 7 days before today, or the calendar week from Monday to Sunday? Which is more useful to the librarian?
 
-Create `generate_report.py`. This script should:
-1. Connect to `library.db`
-2. Run each query
-3. Format the results as a readable text report
-4. Write the report to a file: `reports/weekly-report-YYYY-MM-DD.txt`
+### Part B — Write the report script
 
-The report should look like a document someone could print and read, not a debug dump.
+Create `generate_report.py`. It should run all five queries and produce a report file in a `reports/` folder. The filename should include the date.
 
-```
-=== Library Weekly Report ===
-Week ending: 2026-06-12
+The output should look like something a librarian could read or print — not a technical debug dump. Design the format on paper first: what sections, what headings, how the numbers should be presented.
 
-ACTIVITY
---------
-Books borrowed this week: 23
-Books returned this week: 19
-Currently on loan: 47
-Overdue books: 3
+Run the script manually. Open the report file. Read it as if you were the librarian. Is it clear? Is anything missing or confusing?
 
-MOST POPULAR THIS WEEK
-----------------------
-1. Sapiens — 4 loans
-2. 1984 — 3 loans
-3. The Alchemist — 2 loans
+### Part C — Schedule with cron
 
-OVERDUE BOOKS
--------------
-• "The Kite Runner" — borrowed by Priya (18 days ago)
-• "Dune" — borrowed by Arjun (16 days ago)
-...
-```
+Add a cron entry to generate the report every Monday at 7am. The librarian should find a new report ready when she arrives.
 
-### Step 3 — Schedule the report with cron
+Test it without waiting for Monday: set the schedule to run one minute from now, verify the report is generated, then set it back to Monday mornings.
 
-Add a cron entry to generate the report every Monday at 7am:
-```
-0 7 * * 1 python3 /home/pi/library-project/generate_report.py
-```
+### Part D — Verify correctness
 
-`* * 1` means day-of-week = 1 (Monday).
+Cross-check the numbers in the report against the database in DB Browser. Pick one number from the report — say, "overdue books: 3" — and manually verify it by running the query yourself. Do the numbers match?
 
-### Step 4 — Verify the report
-
-Run the script manually. Open the generated report file. Verify the numbers are correct by cross-checking against the database.
+A report with wrong numbers is worse than no report — the librarian will act on incorrect information.
 
 ## Topics You Will Need
 
