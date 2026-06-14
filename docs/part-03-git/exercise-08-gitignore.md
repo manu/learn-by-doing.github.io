@@ -1,6 +1,6 @@
 ---
 title: "3.8 .gitignore"
-parent: Git & History
+parent: Git and History
 nav_order: 8
 ---
 

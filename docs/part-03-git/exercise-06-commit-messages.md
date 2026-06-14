@@ -1,6 +1,6 @@
 ---
 title: "3.6 Commit Messages"
-parent: Git & History
+parent: Git and History
 nav_order: 6
 ---
 

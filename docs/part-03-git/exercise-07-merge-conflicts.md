@@ -1,6 +1,6 @@
 ---
 title: "3.7 Merge Conflicts"
-parent: Git & History
+parent: Git and History
 nav_order: 7
 ---
 

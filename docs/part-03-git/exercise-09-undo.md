@@ -1,6 +1,6 @@
 ---
 title: "3.9 Undoing Mistakes"
-parent: Git & History
+parent: Git and History
 nav_order: 9
 ---
 
@@ -70,7 +70,60 @@ Set up each situation in your Mini Library and practice the correct undo:
 
 Which one is dangerous and irreversible? When would you use each?
 
-### Part C — The golden rule of rewriting history
+### Part C — Restoring deleted files and folders
+
+Deleting a file is just another kind of change. Git tracked that file — it can bring it back.
+
+There are three situations depending on how far the deletion has gone:
+
+**Situation 1 — Deleted from disk, not yet staged**
+You pressed Delete in the file manager, or ran `rm library.py`. Git sees it as an unstaged deletion.
+
+```
+git restore library.py
+```
+
+The file comes back exactly as it was in the last commit.
+
+**Situation 2 — Deleted and staged** (`git rm` or `git add` after deleting)
+The deletion is staged. First unstage it, then restore it.
+
+```
+git restore --staged library.py
+git restore library.py
+```
+
+**Situation 3 — Deletion was committed**
+The file is gone from the current commit. You need to reach back into history.
+
+First, find the last commit where the file existed:
+```
+git log --all -- library.py
+```
+This shows every commit that touched `library.py`, including the commit that deleted it. The commit *before* the deletion is the one that still had the file.
+
+Then restore the file from that commit:
+```
+git checkout <commit-hash> -- library.py
+```
+
+The file is back on disk and staged, ready for you to commit it.
+
+**Restoring a deleted folder** works the same way — use the folder path instead of a filename:
+```
+git restore src/
+git checkout <hash> -- src/
+```
+
+**Practice all three situations:**
+
+1. Delete `README.md` without staging. Restore it with `git restore`.
+2. Delete `library.py`, then run `git add library.py` to stage the deletion. Restore it using both commands.
+3. Delete a file, commit the deletion, then use `git log --all -- filename` to find when it was deleted and restore it from the previous commit.
+
+Write down the exact command sequence for each situation. Keep this as a reference card.
+
+### Part D — The golden rule of rewriting history
 
 There is one rule in Git that, if broken, causes serious problems for everyone on a team:
 
@@ -84,8 +137,11 @@ Write one rule that describes when to use `reset/amend` and when to use `revert`
 
 ## Topics You Will Learn
 
-- `git restore` — undo changes to a file (before staging)
-- `git restore --staged` — unstage a file
+- `git restore filename` — undo changes to a file, or restore a deleted file (before staging)
+- `git restore --staged filename` — unstage a file or a staged deletion
+- `git restore folder/` — restore a deleted folder
+- `git log --all -- filename` — find the last commit that contained a deleted file
+- `git checkout <hash> -- filename` — restore a file from any past commit
 - `git commit --amend` — fix the last commit (before pushing only)
 - `git reset HEAD~1` — undo the last commit, keep changes
 - `git reset --hard` — undo commit AND discard changes (dangerous)

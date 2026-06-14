@@ -1,6 +1,6 @@
 ---
 title: "3.10 Reading History"
-parent: Git & History
+parent: Git and History
 nav_order: 10
 ---
 
