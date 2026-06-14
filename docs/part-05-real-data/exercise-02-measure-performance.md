@@ -8,82 +8,76 @@ nav_order: 2
 
 ## The Story
 
-"It feels slow" is not a useful engineering observation. Engineers measure.
+The librarian asks: "How slow is it?"
 
-Before you can fix a performance problem, you need to know three things: how slow is it, which part is slow, and how does it change as data grows? Guessing is almost always wrong. The part you think is the bottleneck is often not the actual bottleneck.
+"It feels slow," you say.
 
-This exercise teaches you to measure properly — so that when you apply a fix, you can prove the fix worked.
+"How slow is slow? Is it 2 seconds slow or 20 seconds slow? Does it get worse as we add more books, or does it stay the same? Which part is slow — the startup, or the search?"
+
+You cannot answer any of these questions. You only know it *feels* slow.
+
+This is the difference between a complaint and a measurement. In engineering, "it feels slow" is the beginning of an investigation, not the end. Before you can fix a performance problem, you need to know:
+
+1. How slow is it, in numbers?
+2. Which part is the bottleneck?
+3. How does the slowness grow as data grows?
+
+Only measurements answer these questions. Guessing is almost always wrong — engineers consistently underestimate how much the *wrong* part matters and how little the *right* part does.
 
 ## What to Do
 
-### Step 1 — Measure startup time
+### Part A — Add timing to the library
 
-Add timing code to `storage.py` around the book loading:
+Add code to measure exactly how long each major operation takes. Measure at least two points:
 
-```
-(record the time just before load_books() runs)
-(call load_books())
-(record the time just after load_books() returns)
-(print the difference)
-```
+- **Load time**: from when the program starts reading the CSV to when the list is fully in memory
+- **Search time**: from when the search function starts to when it returns results
 
-Run with 10,000 books. Record the number.
-Run with 50,000 books. Record the number.
-Run with 100,000 books. Record the number.
+Record the time at the start of each operation, record it again at the end, and print the difference. This is your measurement.
 
-### Step 2 — Measure search time
+### Part B — Build the measurement table
 
-Add the same timing code around the search function. Run the same search query against:
-- 10,000 books
-- 50,000 books
-- 100,000 books
+Run the library with three different dataset sizes and fill in this table. Use the same search query each time so the results are comparable.
 
-Record each result.
+| Dataset size | Load time (seconds) | Search time (seconds) |
+|-------------|--------------------|-----------------------|
+| 10,000 books | | |
+| 50,000 books | | |
+| 100,000 books | | |
 
-### Step 3 — Build a results table
+Run each measurement three times and use the middle value — the first run is sometimes faster or slower than usual due to the computer's own caching behaviour.
 
-| Books | Startup time | Search time |
-|-------|-------------|-------------|
-| 10,000 | ? | ? |
-| 50,000 | ? | ? |
-| 100,000 | ? | ? |
+### Part C — Find the pattern
 
-### Step 4 — Find the pattern
+Look at your table. As the dataset doubles in size:
+- Does load time roughly double? More than double? Stay the same?
+- Does search time roughly double? More than double? Stay the same?
 
-Look at the numbers. When data doubles, does the time double? Does it more than double? Does it stay roughly the same?
+Write one sentence describing what you observe for each.
 
-Write one sentence explaining what you observe about how the program scales.
+This pattern — how time grows as data grows — is one of the most important things an engineer learns to recognise. You do not need the formal theory yet. The numbers themselves will tell you what you need to know.
 
-### Step 5 — Find the bottleneck
+### Part D — Find the bottleneck
 
-Which is slower — loading the data or searching it? By how much? Which problem is more important to fix first?
+Compare your load time to your search time at 100,000 books.
 
-## What to Observe
+Which is larger? By how much — 2 times? 10 times? 100 times?
 
-The pattern of how time grows as data grows has a name in computer science: *time complexity*. A program that takes twice as long for twice the data is called linear — `O(n)`. A program that takes four times as long for twice the data is *quadratic* — `O(n²)`. Understanding which category your program falls into tells you how it will behave at scale.
-
-You do not need to know the formal theory right now. But you should be able to observe the pattern in your own numbers.
-
-## Topics You Will Need
-
-- `import time` and `time.time()`
-- Basic arithmetic to compute durations
-- How to run the same experiment multiple times for consistent results
-- The concept of a bottleneck — the slowest part of a pipeline determines the speed of the whole
+The librarians at the school search the catalogue dozens of times per day. They only start the program once. Which problem — slow load or slow search — matters more for the daily experience of using the library? Write your answer and the reasoning behind it.
 
 ## Before You Start — Think About This
 
-1. If you measure search time once and get 0.3 seconds, is that a reliable measurement? What could cause it to vary between runs?
-2. What is a *bottleneck*? If loading takes 5 seconds and search takes 0.01 seconds, which one matters more for the user experience? Which one is worth fixing first?
-3. Your search function looks at every book in the list every time it runs. Is there a way to answer a search query without looking at every book? (You don't have to solve this yet — just think about whether it is possible.)
+1. You run the search timing twice in a row with the same query. The second run is sometimes faster than the first. Why might that be? Does it mean the second measurement is more accurate, or less?
+2. The load time measures how long it takes to read a file and build a list. The search time measures how long it takes to scan the list. Are these the same kind of operation? Would you expect them to scale the same way?
+3. If 100,000 books causes the program to run out of memory and crash — what does that tell you? Record it as a measurement too: "program fails at X books with a memory error."
 
 ## When You're Stuck
 
-- `time.time()` returns the current time in seconds as a float. Subtract the start time from the end time to get the duration.
-- Run each measurement at least three times and use the average. The first run is often slower due to disk caching effects.
-- If 100,000 books causes the program to crash with a `MemoryError`, that itself is important data — record it.
+- Python has a standard way to measure how much time has passed. Look up how to record a time before an operation and calculate the duration after it finishes.
+- If you cannot get 100,000 books, estimate: measure at 10,000 and 50,000, then extrapolate what 100,000 would likely be based on the pattern you see.
+- A measurement is only useful if you record the conditions: what computer, what dataset size, what query. Write all of this down alongside your numbers.
 
 ## Once It Works — Go Further
 
-1. Look up what a *profiler* is. Python has a built-in one: run `python -m cProfile library.py` and read the output. Which function takes the most cumulative time? Does it match your intuition about where the bottleneck is?
-2. Look up the term *algorithmic complexity* (or Big-O notation). After reading a short introduction, classify your search function: is it `O(n)`, `O(n²)`, or something else?
+1. Python includes a built-in tool called `cProfile` that measures where time is spent across the whole program. Run it on your library and read the output. Which function consumes the most time? Does it match what you expected?
+2. You measured time. Can you also measure memory? Look up how to check how much memory a Python program is using. How much memory does loading 10,000 books consume? 100,000?
