@@ -33,3 +33,4 @@ If AI wrote this code, how would you know it is correct?
 - [11.1 Review AI-Generated Code](exercise-01-review-ai-code.md)
 - [11.2 Build a Feature with AI](exercise-02-ai-feature.md)
 - [11.3 When AI Is Wrong](exercise-03-when-ai-is-wrong.md)
+- [11.4 Decisions AI Cannot Make](exercise-04-decisions-ai-cannot-make.md)

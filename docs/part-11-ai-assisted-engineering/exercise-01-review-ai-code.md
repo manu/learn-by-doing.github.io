@@ -35,38 +35,40 @@ def add_book():
 
 ## What to Do
 
-### Step 1 — Read it carefully
+### Part A — Read it completely first
 
-Read the code three times before writing anything down. Understand what it does.
+Read the code three times without writing anything. Understand what it does and what it is supposed to do.
 
-### Step 2 — Find the problems
+Only after you understand the intent should you start looking for problems.
 
-There are at least four distinct problems in this code. Find them. For each one, write:
+### Part B — Find the problems
 
-1. What the problem is (describe it precisely)
-2. What could go wrong because of it (the consequence)
-3. How you would fix it
+There are at least four distinct problems in this code. Find them all before moving on. For each one, write:
+- What the problem is (be specific about which line and what exactly is wrong)
+- What could go wrong as a result (what an attacker could do, or how the system could fail)
+- How you would fix it
 
-Do not look up the answers. Work through the code yourself first.
+Work through the code yourself. Do not search for the answers first.
 
-### Step 3 — Classify each problem
+### Part C — Classify each problem
 
 After finding the problems, classify each one:
 - **Security vulnerability** — an attacker could exploit this
-- **Reliability issue** — the code will fail under normal circumstances
-- **Maintainability problem** — the code works but will cause pain later
+- **Reliability issue** — the code will fail under normal or unexpected circumstances
+- **Maintainability problem** — the code works but will cause problems as the system grows
 - **Missing feature** — something the code should do but does not
 
-### Step 4 — Write the fixed version
+### Part D — Write the corrected version
 
-Rewrite the route so that all the problems are fixed. The functionality should be identical — a POST request adds a book, a GET request shows the form — but the implementation should be correct.
+Rewrite the route so all the problems are fixed. The functionality must be identical — a POST request adds a book, a GET request shows the form — but the implementation must be correct.
 
-### Step 5 — Reflect on the review process
+### Part E — Reflect
 
-After fixing the code, answer:
+After writing the fix, answer these questions:
 1. Which problem was most dangerous?
-2. Which problem would have been hardest to find without a deliberate review?
-3. If you had just run the code and seen it work, would you have caught any of these problems?
+2. Which problem would have been hardest to find without a careful review?
+3. The code ran without errors. Someone tested it with a valid title and author and it worked. Would they have caught any of these problems during testing?
+4. What does this tell you about the difference between "it works" and "it is correct"?
 
 ## Topics You Will Learn
 

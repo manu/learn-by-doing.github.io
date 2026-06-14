@@ -14,48 +14,48 @@ You will use an AI assistant to help write the code. But you are the engineer �
 
 ## What to Do
 
-### Step 1 — Write the specification first
+### Part A — Write the specification before touching AI
 
-Before opening the AI assistant, write a clear specification for the dashboard feature:
-- What data should it display?
-- Where does each piece of data come from (which table, which query)?
+Before opening any AI assistant, write a complete specification for the dashboard:
+- What data should it display? (List every number, every table, every list)
+- Where does each piece of data come from? (Which database table, which query)
 - What should the URL be?
-- What should the page look like?
-- What happens if there are no loans, no members, no books?
+- What should happen when there are no loans? No members? The database is empty?
 
-Writing the specification before using AI is essential. If you cannot describe what you want precisely, the AI will fill in the gaps with assumptions — and those assumptions may not match what you actually need.
+This specification is the standard the feature must meet. If you cannot describe what you want precisely, the AI will fill in the gaps with assumptions — and those assumptions may be wrong.
 
-### Step 2 — Ask the AI for the Flask route
+### Part B — Use AI to generate a starting point
 
-Prompt the AI with your specification. Ask it to write:
-1. The Flask route and database queries
-2. The Jinja2 template
+Prompt the AI with your full specification. Ask it to write the Flask route, the database queries, and the template.
 
-### Step 3 — Read every line before using it
+Pay attention to what the AI assumed. Did it assume your database schema? Your URL structure? Your template names? Are any of those assumptions incorrect?
 
-Go through the AI's output line by line. For each section, answer:
-- Do I understand what this line does?
-- Is this the right approach, or is there a better way?
-- Does this match my specification exactly?
-- Are there any problems I recognise from previous exercises?
+### Part C — Read every line before using it
 
-Do not copy anything you do not understand. If you do not understand a line, ask the AI to explain it. Then verify the explanation.
+Go through the AI's output one piece at a time. For each section, answer:
+- Do I understand what this does? If not, ask the AI to explain it — then verify the explanation yourself.
+- Is this the right approach? Are there problems you recognize from earlier in the curriculum?
+- Does this match the specification you wrote in Part A?
 
-### Step 4 — Integrate and test
+Do not copy anything you cannot explain. If you cannot explain it, you cannot fix it when it breaks.
 
-Integrate the code into the library application. Test all the cases you specified:
-- Normal case: data exists
-- Edge case: no loans this week
-- Edge case: some overdue books, some not
-- Edge case: the database is empty
+### Part D — Integrate, test all cases, fix problems
 
-### Step 5 — Measure what AI saved and what it cost
+Integrate the code into the library. Test every case in your specification:
+- Normal: data exists
+- Edge: no loans this week
+- Edge: some books overdue, some not
+- Edge: the database is completely empty
 
-Write a short note:
-- How long would the feature have taken without AI help?
-- How long did it take with AI help?
-- How long did the review and testing take?
-- Did the AI generate any problems that you had to fix?
+Find and fix every problem before considering the feature done.
+
+### Part E — Measure the real cost
+
+Write a short honest assessment:
+- How long did writing the specification take?
+- How long did reviewing and fixing the AI's output take?
+- How long would the feature have taken if you had written it yourself from the start?
+- What did AI actually save? What did it not save?
 
 ## Topics You Will Learn
 
